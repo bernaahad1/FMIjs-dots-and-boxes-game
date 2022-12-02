@@ -1,3 +1,7 @@
+// const { io } = require("socket.io-client");
+const socket = io();
+
+
 const board = document.getElementsByClassName("game-board")[0];
 const mainConatiner = document.getElementsByClassName("main-content")[0];
 
