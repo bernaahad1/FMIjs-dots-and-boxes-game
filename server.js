@@ -19,6 +19,7 @@ const rooms = new Map(); //{owner, name, gridSize, playerNum}
 
 io.on('connection', socket =>{
     console.log(`New WS Connection. Connection id: ${socket.id}`)
+
     socket.on("join server", (username) => {
         const user = {
             username,
@@ -28,7 +29,10 @@ io.on('connection', socket =>{
         io.emit("new user", users);
     })
 
-    socket.on("disconect", () =>{
+    socket.on("disconnect", () =>{
+        users = users.filter(u => u.id !== socket.id);
+        console.log("user disconected")
+        io.emit("new user", users); // this will be emitted to all 
         //this is when the user leave
         //it should remove him from users
         //and to emit "delete room"
@@ -56,10 +60,16 @@ io.on('connection', socket =>{
             room.players.push(null);
         }
         rooms.set(roomName, room);
+        console.log(rooms);
+
+        io.emit("new room", Array.from(rooms));
     })
 
     socket.on("delete room", () =>{
         //you can delete it only if you are the user
         //or it should delete them if the user disconects
+
+        io.emit("new room", rooms);
     })
 })
+
