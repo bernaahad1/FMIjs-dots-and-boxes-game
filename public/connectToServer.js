@@ -2,6 +2,7 @@ const socket = io();
 
 let rooms = new Map();
 let username = "user 1";
+let playerIndex = -1;
 
 socket.emit("join server", username);
 
@@ -14,7 +15,16 @@ const onCreateRoom = () =>{
 }
 
 const onChooseRoom = (event) => {
-    console.log(`${event.target.value}`)
+    const room = event.target.value;
+    socket.emit("join room", room, (r, index) => {
+        console.log(r);
+        playerIndex = index;
+        console.log(`Player ${playerIndex} has connected`);
+
+        if(playerIndex === -1){
+            //He should only watch, but not play
+        }
+    })
 }
 
 const createElements = () => {

@@ -15,10 +15,18 @@ server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Handle socket connection
 let users = []; //{username, ownedGames = [], id}
-const rooms = new Map(); //{owner, name, gridSize, playerNum}
+const rooms = new Map(); //{owner, name, gridSize, players:[,]}
 
 io.on('connection', socket =>{
     console.log(`New WS Connection. Connection id: ${socket.id}`)
+    let playerIndex = -1;
+
+    const clearPlayerGame = () => {
+        const connectedRooms = Array.from(socket.rooms);
+        if(connectedRooms.length == 1) return;
+        rooms.get(connectedRooms.pop()).players[playerIndex] = null;
+        playerIndex = -1;
+    }
 
     socket.on("join server", (username) => {
         const user = {
@@ -28,6 +36,10 @@ io.on('connection', socket =>{
         users.push(user);
         io.emit("new user", users);
     })
+
+    socket.on("disconnecting", () => {
+        clearPlayerGame();
+    });
 
     socket.on("disconnect", () =>{
         users = users.filter(u => u.id !== socket.id);
@@ -39,8 +51,17 @@ io.on('connection', socket =>{
     })
 
     socket.on("join room", (roomName, cb) =>{
+        clearPlayerGame();
         socket.join(roomName);
-        cb(rooms[roomName]);//?
+        const players = rooms.get(roomName).players;
+        for(const i in players){
+            if(players[i] === null){
+                playerIndex = i;
+                rooms.get(roomName).players[i] = true;
+                break;
+            }
+        }
+        cb(rooms.get(roomName), playerIndex);
         socket.emit("connected",rooms[roomName]);//?
     })
 
@@ -60,7 +81,6 @@ io.on('connection', socket =>{
             room.players.push(null);
         }
         rooms.set(roomName, room);
-        console.log(rooms);
 
         io.emit("new room", Array.from(rooms));
     })
