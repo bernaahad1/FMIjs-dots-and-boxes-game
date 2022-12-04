@@ -23,8 +23,10 @@ io.on('connection', socket =>{
 
     const clearPlayerGame = () => {
         const connectedRooms = Array.from(socket.rooms);
+        console.log(connectedRooms);
         if(connectedRooms.length == 1) return;
         rooms.get(connectedRooms.pop()).players[playerIndex] = null;
+        //remove from socket rooom
         playerIndex = -1;
     }
 
@@ -62,6 +64,7 @@ io.on('connection', socket =>{
             }
         }
         cb(rooms.get(roomName), playerIndex);
+        console.log(rooms.get(roomName));
         socket.emit("connected",rooms[roomName]);//?
     })
 
@@ -70,6 +73,8 @@ io.on('connection', socket =>{
     })
 
     socket.on("create room",(roomName, gridSize, playerNum) =>{
+        //check if room exist!!!
+        
         const room = {
             owner: socket.id,
             name: roomName,
