@@ -20,12 +20,13 @@ const onCreateRoom = () => {
 };
 
 const onChooseRoom = (event) => {
-  const room = event.target.value;
-  currentRoom = room;
-  socket.emit("join room", room, (r, index) => {
+  currentRoom = event.target.value;
+  socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
     playerIndex = index;
     console.log(`Player ${playerIndex} has connected`);
+
+    //Just for now
     createBoard();
 
     if (playerIndex === -1) {
@@ -98,7 +99,6 @@ export function onLineClick(event) {
 
 socket.on("select", (currentRoom, className) => {
   const myEl = document.getElementsByClassName(className)[0];
-  console.log(myEl);
 
   myEl.style.opacity = 100;
   myEl.disabled = true;

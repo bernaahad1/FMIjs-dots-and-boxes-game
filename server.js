@@ -98,11 +98,11 @@ io.on("connection", (socket) => {
 
   socket.on("select", (room, target) => {
     console.log(
-      `Select from ${playerIndex} to room ${room} with target ${target}`
+      `Select from player ${playerIndex} in room ${room} with target ${target}`
     );
 
     // Emit the move to the other players
     // TODO find way to emit the move only to players in the room
-    socket.broadcast.emit("select", room, target);
+    socket.broadcast.to(room).emit("select", room, target);
   });
 });
