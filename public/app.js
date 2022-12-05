@@ -2,12 +2,15 @@
 //const socket = io();
 
 
-const board = document.getElementsByClassName("game-board")[0];
-const mainConatiner = document.getElementsByClassName("main-content")[0];
+// TODO BERNA please make the code more understandable
+import { onLineClick } from "./connectToServer.js";
+
+export const board = document.getElementsByClassName("game-board")[0];
+export const mainConatiner = document.getElementsByClassName("main-content")[0];
 
 const boardSize = 10;
 
-const boxes = (() => {
+export const boxes = (() => {
   const bx = new Map([]);
   for (let i = 0; i < boardSize; i++) {
     for (let j = 0; j < boardSize; j++) {
@@ -17,7 +20,7 @@ const boxes = (() => {
   return bx;
 })();
 
-createBoard = () => {
+export const createBoard = () => {
   const gameBoard = document.createElement("section");
   gameBoard.className = "game-board";
 
@@ -58,27 +61,24 @@ createBoard = () => {
   lines.forEach((el) => el.addEventListener("click", onLineClick));
 };
 
-createBoard();
-
-const updateBoxState = (boxes, id) => {
+export const updateBoxState = (boxes, id, color) => {
   boxes[id]++;
 
   if (boxes[id] >= 4) {
-    // document.getElementById(`${id}`).style.backgroundColor =
-    //   "tomato";
-    document.getElementById(
-      `${id}`
-    ).innerHTML += `<h1 class="winnerText">B<h1>`;
+    document.getElementById(`${id}`).style.backgroundColor = color;
+    // document.getElementById(
+    //   `${id}`
+    // ).innerHTML += `<h1 class="winnerText">B<h1>`;
   }
 };
 
-function onLineClick(event) {
-  event.preventDefault();
-  event.target.style.opacity = 100;
-  event.target.disabled = true;
+// function onLineClick(event) {
+//   event.preventDefault();
+//   event.target.style.opacity = 100;
+//   event.target.disabled = true;
 
-  const classList = event.target.classList;
+//   const classList = event.target.classList;
 
-  updateBoxState(boxes, classList[3]);
-  updateBoxState(boxes, classList[4]);
-}
+//   updateBoxState(boxes, classList[3]);
+//   updateBoxState(boxes, classList[4]);
+// }
