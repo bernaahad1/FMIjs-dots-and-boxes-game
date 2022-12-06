@@ -10,6 +10,9 @@ socket.on("fetch rooms", r => {
     rooms = new Map(r);
     generateAllExitingRooms();
 });
+socket.on("update room", roomName => {
+    updateRoomButton(roomName);
+})
 
 const onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 4) => {
     socket.emit("create room", roomName, gridSize, numPlayers);
@@ -23,27 +26,25 @@ const createRoomButton = (roomName, numPlayers, playersConnected, _state) => {
     button.id = `${roomName}`;
     button.value = `${roomName}`;
 
-    //I tried to make it cool
-    // const name = document.createElement("p");
-    // name.innerHTML = `${roomName} `;
-    // name.disabled = true;
-
-    // const players = document.createElement("p");
-    // players.innerHTML = `${playersConnected}/${numPlayers}`;
-
-    // const state = document.createElement("p"); //this can be check or X
-    // state.innerHTML = `${_state}`
-
-    // button.appendChild(name);
-    // button.appendChild(players);
-    // button.appendChild(state);
     button.innerHTML += `${roomName} ${playersConnected}/${numPlayers} ${_state}`
     allRooms.appendChild(button);
 }
 
 const updateRoomButton = (roomName) => {
     const button = document.getElementById(`${roomName}`);
-    button.innerHTML = ``;
+    const numPlayers = Number(button.innerHTML.match(/\/([0-9]*?) /)[1]);
+    let connected = Number(button.innerHTML.match(/ ([0-9]*?)\//)[1]);
+    if(connected+1 <= numPlayers) connected++;
+    const state = numPlayers === connected ? "playing" : "pending";
+    // console.log(`repleace ${button.innerHTML} to ${button.innerHTML.replace(/ .*?\//," 5/")}`);
+    // console.log(`match num players ${button.innerHTML.match(/\/([0-9]*?) /)[1]}`);
+    // console.log(`match num connected ${button.innerHTML.match(/ ([0-9]*?)\//)[1]}`);
+    button.innerHTML = button.innerHTML.replace(/ [0-9]*?\//,` ${connected}/`);
+    button.innerHTML = button.innerHTML.replace(/ [a-z]*?$/, ` ${state}`);
+
+    console.log(`${numPlayers} ${connected}`)
+    if(numPlayers === connected)
+        button.className = "ChooseRoomFull";
 }
 
 const generateAllExitingRooms = () => {
@@ -63,7 +64,6 @@ const generateAllExitingRooms = () => {
     const roomButtons = document.getElementsByClassName("ChooseRoom");
 
   for (let i = 0; i < rooms.size; i++) {
-    //console.log(roomButtons[i])
     roomButtons[i].addEventListener("click", onChooseRoom);
   }
 
@@ -95,6 +95,7 @@ const createHome = () => {
     column2.innerHTML += `<h2>All Rooms</h2>`;
     const buttonsBox = document.createElement("div");
     buttonsBox.id = "home-all-rooms";
+    buttonsBox.className = "home-column";
     column2.appendChild(buttonsBox);
 
     //add elements to HTML

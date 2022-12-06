@@ -62,6 +62,7 @@ io.on("connection", (socket) => {
     currentRoom = roomName;
     console.log(socket.rooms)
     const players = rooms.get(roomName).players;
+    io.emit("update room", roomName);
     for (const i in players) {
       if (players[i] === null) {
         playerIndex = i;

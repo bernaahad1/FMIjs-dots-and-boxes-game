@@ -15,7 +15,6 @@ export const onChooseRoom = (event) => {
     console.log(r);
     playerIndex = index;
     console.log(`Player ${playerIndex} has connected`);
-
     //Just for now
     createBoard();
     document.getElementById("home-menu").className = "home-row-hidden";
@@ -32,16 +31,6 @@ socket.on("new user", (users) => {
 
 //selecting lines
 export function onLineClick(event) {
-  // event.preventDefault();
-
-  // event.target.style.opacity = 100;
-  // event.target.disabled = true;
-
-  // const classList = event.target.classList;
-
-  // updateBoxState(boxes, classList[3], "green");
-  // updateBoxState(boxes, classList[4], "green");
-
   socket.emit("select", event.target.className, playerIndex);
 }
 

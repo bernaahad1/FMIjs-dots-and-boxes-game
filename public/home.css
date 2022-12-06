@@ -61,3 +61,38 @@
 .title img{
     max-height: 110px;
 }
+
+.ChooseRoom {
+    font-size: 30px;
+    max-width: 240px;
+    border-radius: 20px;
+    color: black;
+    background-color: #ffffff;
+    border-style: solid;
+    margin: 0px auto;
+    padding: 5px 20px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-color: #cbeefd;
+}
+.ChooseRoom:hover{
+    background-color: #cbeefd;
+}
+
+.ChooseRoomFull {
+    font-size: 30px;
+    max-width: 240px;
+    border-radius: 20px;
+    color: black;
+    background-color: #e997ab;
+    border-style: solid;
+    margin: 0px auto;
+    padding: 5px 20px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border: none;
+}
+.ChooseRoomFull:hover{
+    background-color: #ffffff;
+    border-color: #cbeefd;
+}
