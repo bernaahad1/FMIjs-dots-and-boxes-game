@@ -5,6 +5,13 @@
     align-content: flex-start;
     flex-wrap: wrap;
 }
+.home-row-hidden{
+    display: none;
+    flex-direction: row;
+    justify-content: space-around;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
 
 .home-column{
     display: flex;
