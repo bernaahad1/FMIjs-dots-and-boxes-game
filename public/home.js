@@ -1,6 +1,8 @@
 import { onChooseRoom, socket } from "./connectToServer.js";
 
 let rooms = new Map();
+let newRoomName = '';
+let newRoomSize = 0;
 
 socket.on("new room", (r) => {
     rooms = new Map(r);
@@ -15,7 +17,12 @@ socket.on("update room", roomName => {
 })
 
 const onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 4) => {
-    socket.emit("create room", roomName, gridSize, numPlayers);
+    console.log(`${newRoomName} and ${newRoomSize}`)
+    if(newRoomSize < 4 || newRoomSize > 10 || Number(newRoomSize) === NaN){
+        alert("Wrong grid size!!!");
+        return;
+    }
+    socket.emit("create room", newRoomName, newRoomSize, 2);
     //createRoomButton(roomName, numPlayers,0,"waiting");
 }
 
@@ -36,9 +43,7 @@ const updateRoomButton = (roomName) => {
     let connected = Number(button.innerHTML.match(/ ([0-9]*?)\//)[1]);
     if(connected+1 <= numPlayers) connected++;
     const state = numPlayers === connected ? "playing" : "pending";
-    // console.log(`repleace ${button.innerHTML} to ${button.innerHTML.replace(/ .*?\//," 5/")}`);
-    // console.log(`match num players ${button.innerHTML.match(/\/([0-9]*?) /)[1]}`);
-    // console.log(`match num connected ${button.innerHTML.match(/ ([0-9]*?)\//)[1]}`);
+
     button.innerHTML = button.innerHTML.replace(/ [0-9]*?\//,` ${connected}/`);
     button.innerHTML = button.innerHTML.replace(/ [a-z]*?$/, ` ${state}`);
 
@@ -69,6 +74,14 @@ const generateAllExitingRooms = () => {
 
 }
 
+const changeRoomInput = (e) => {
+    console.log(e.target.value)
+    newRoomName = e.target.value;
+}
+const changeSizeInput = (e) => {
+    newRoomSize = e.target.value;
+}
+
 const createHome = () => {
     const mainConatiner = document.getElementsByClassName("main-content")[0];
 
@@ -87,9 +100,9 @@ const createHome = () => {
 
     column1.appendChild(title);
     column1.innerHTML += `<button class="create-room">Create Room</button>`;
-    column1.innerHTML += `<input type="text" id="IRoomName" placeholder="Room name" required>`;
-    column1.innerHTML += `<input type="number" id="IRoomName" placeholder="Number players(2-4)" required>`;
-    column1.innerHTML += `<input type="number" id="IRoomName" placeholder="Grid size(4-10)" required>`;
+    column1.innerHTML += `<input type="text" id="IRoomName" placeholder="Room name" maxlength="10" required>`;
+    // column1.innerHTML += `<input type="number" id="INumPlayers" placeholder="Number players(2-4)" required>`;
+    column1.innerHTML += `<input type="number" id="IGridSize" placeholder="Grid size(4-10)" min="4" max="10" required>`;
 
     //all rooms colum
     column2.innerHTML += `<h2>All Rooms</h2>`;
@@ -105,12 +118,10 @@ const createHome = () => {
 
     mainConatiner.getElementsByClassName("create-room")[0]
     .addEventListener("click", onCreateRoom);
+    document.getElementById("IRoomName").addEventListener("change", changeRoomInput);
+    document.getElementById("IGridSize").addEventListener("change", changeSizeInput);
 
     generateAllExitingRooms();
 }
 
 createHome();
-
-//just for testing, in reality ignore the e
-onCreateRoom("a","1", 2, 4);
-onCreateRoom("a","2", 2, 4);
