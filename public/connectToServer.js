@@ -1,22 +1,27 @@
-import { boxes, updateBoxState, createBoard } from "./app.js";
+import { boxes, GameBoard } from "./app.js";
 
 export const socket = io();
 
 let username = "user 1";
 let playerIndex = -1;
 let currentRoom = "";
+let gameBoard = undefined;
 
 socket.emit("join server", username);
 
 export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
-  console.log(`updated currentRoom to: ${currentRoom}`)
+  console.log(`updated currentRoom to: ${currentRoom}`);
   socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
     playerIndex = index;
     console.log(`Player ${playerIndex} has connected`);
+
     //Just for now
-    createBoard();
+    gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex);
+    gameBoard.createBoard();
+    console.log(gameBoard);
+
     document.getElementById("home-menu").className = "home-row-hidden";
 
     if (playerIndex === -1) {
@@ -36,15 +41,15 @@ export function onLineClick(event) {
 
 socket.on("select", (className, initializer) => {
   const myEl = document.getElementsByClassName(className)[0];
-  console.log(`Start: ${initializer}; Element to update: ${myEl}`)
+  console.log(`Start: ${initializer}; Element to update: ${myEl}`);
   myEl.style.opacity = 100;
   myEl.disabled = true;
 
-  if(initializer === playerIndex){
-    updateBoxState(boxes, myEl.classList[3], "green");
-    updateBoxState(boxes, myEl.classList[4], "green");
+  if (initializer === playerIndex) {
+    gameBoard.updateBoxState(boxes, myEl.classList[3], "green");
+    gameBoard.updateBoxState(boxes, myEl.classList[4], "green");
     return;
   }
-  updateBoxState(boxes, myEl.classList[3], "red");
-  updateBoxState(boxes, myEl.classList[4], "red");
+  gameBoard.updateBoxState(boxes, myEl.classList[3], "red");
+  gameBoard.updateBoxState(boxes, myEl.classList[4], "red");
 });
