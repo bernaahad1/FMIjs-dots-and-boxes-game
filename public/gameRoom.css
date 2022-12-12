@@ -108,3 +108,35 @@ main {
   align-items: center;
   flex-wrap: wrap;
 }
+
+.center {
+  text-align: center;
+}
+
+.players h1 {
+  padding: 0 10px 0 10px;
+  border-radius: 5px;
+  background-color: rgb(217, 217, 217);
+}
+h1.my-score {
+  background-color: pink;
+}
+
+.overlay-disable {
+  position: absolute;
+  top: 200px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.overlay-disable.hidden {
+  display: none;
+}
+
+.game-state {
+  display: flex;
+  padding: 40px 10px 0px 10px;
+  justify-content: center;
+}

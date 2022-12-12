@@ -35,9 +35,6 @@ socket.on("new user", (users) => {
 });
 
 //selecting lines
-export function onLineClick(event) {
-  socket.emit("select", event.target.className, playerIndex);
-}
 
 socket.on("select", (className, initializer) => {
   const myEl = document.getElementsByClassName(className)[0];
@@ -46,10 +43,38 @@ socket.on("select", (className, initializer) => {
   myEl.disabled = true;
 
   if (initializer === playerIndex) {
-    gameBoard.updateBoxState(boxes, myEl.classList[3], "green");
-    gameBoard.updateBoxState(boxes, myEl.classList[4], "green");
+    const result1 = gameBoard.updateBoxState(
+      myEl.classList[3],
+      "green",
+      initializer
+    );
+    const result2 = gameBoard.updateBoxState(
+      myEl.classList[4],
+      "green",
+      initializer
+    );
+
+    if (!(result1 && result2)) {
+      console.log("other turn");
+      gameBoard.onChangePlayTurn(false);
+    }
+
     return;
+  } else {
+    const result1 = gameBoard.updateBoxState(
+      myEl.classList[3],
+      "red",
+      initializer
+    );
+    const result2 = gameBoard.updateBoxState(
+      myEl.classList[4],
+      "red",
+      initializer
+    );
+
+    if (!(result1 && result2)) {
+      console.log("my turn");
+      gameBoard.onChangePlayTurn(true);
+    }
   }
-  gameBoard.updateBoxState(boxes, myEl.classList[3], "red");
-  gameBoard.updateBoxState(boxes, myEl.classList[4], "red");
 });
