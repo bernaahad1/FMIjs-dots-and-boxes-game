@@ -24,6 +24,10 @@ const onCreateRoom = (
   gridSize = 4
 ) => {
   console.log(`${newRoomName} and ${newRoomSize}`);
+  if(newRoomName === ''){
+    alert("Add name");
+    return;
+  }
   if (newRoomSize < 4 || newRoomSize > 10 || Number(newRoomSize) === NaN) {
     alert("Wrong grid size!!!");
     return;
@@ -38,6 +42,12 @@ const createRoomButton = (roomName, numPlayers, playersConnected, _state) => {
   button.className = "ChooseRoom";
   button.id = `${roomName}`;
   button.value = `${roomName}`;
+
+  if (numPlayers === playersConnected) {
+    button.className = "ChooseRoomFull";
+  } else {
+    button.className = "ChooseRoom";
+  }
 
   button.innerHTML += `${roomName} ${playersConnected}/${numPlayers} ${_state}`;
   allRooms.appendChild(button);
