@@ -1,4 +1,4 @@
-import { boxes, GameBoard } from "./app.js";
+import { GameBoard } from "./app.js";
 
 export const socket = io();
 
@@ -17,7 +17,6 @@ export const onChooseRoom = (event) => {
     playerIndex = index;
     console.log(`Player ${playerIndex} has connected`);
 
-    //Just for now
     gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex);
     gameBoard.createBoard();
     console.log(gameBoard);
@@ -30,13 +29,41 @@ export const onChooseRoom = (event) => {
   });
 };
 
+export const onLeaveRoom = (event) => {
+  socket.emit("leave room", () => {
+    console.log(`Player ${playerIndex} has disconnected`);
+    gameBoard = undefined;
+    playerIndex = -1;
+
+    document.getElementById("home-menu").className = "home-row";
+    const gameRoom = document.getElementsByClassName("game-room")[0];
+    document.getElementsByClassName("main-content")[0].removeChild(gameRoom);
+  });
+};
+
 socket.on("new user", (users) => {
   console.log("users change");
 });
 
-//selecting lines
+socket.on("user left", (room) => {
+  if (room !== gameBoard.name) {
+    return;
+  }
+  const gameRoom = document.getElementsByClassName("game-room")[0];
+  document.getElementsByClassName("main-content")[0].removeChild(gameRoom);
 
-socket.on("select", (className, initializer) => {
+  //just for now
+  gameBoard = new GameBoard(
+    gameBoard.name,
+    gameBoard.size - 1,
+    gameBoard.players,
+    playerIndex
+  );
+  console.log("You win");
+});
+
+//selecting lines
+socket.on("selectLine", (className, initializer) => {
   const myEl = document.getElementsByClassName(className)[0];
   console.log(`Start: ${initializer}; Element to update: ${myEl}`);
   myEl.style.opacity = 100;
@@ -54,7 +81,7 @@ socket.on("select", (className, initializer) => {
       initializer
     );
 
-    if (!(result1 && result2)) {
+    if (!result1 && !result2) {
       console.log("other turn");
       gameBoard.onChangePlayTurn(false);
     }
@@ -72,7 +99,7 @@ socket.on("select", (className, initializer) => {
       initializer
     );
 
-    if (!(result1 && result2)) {
+    if (!result1 && !result2) {
       console.log("my turn");
       gameBoard.onChangePlayTurn(true);
     }

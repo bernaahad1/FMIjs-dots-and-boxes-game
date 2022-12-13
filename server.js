@@ -19,7 +19,7 @@ const rooms = new Map(); //{owner, name, gridSize, players:[,]}
 io.on("connection", (socket) => {
   console.log(`New WS Connection. Connection id: ${socket.id}`);
   let playerIndex = -1;
-  let currentRoom ="";
+  let currentRoom = "";
 
   const clearPlayerGame = () => {
     const connectedRooms = Array.from(socket.rooms);
@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
     };
     users.push(user);
     io.emit("new user", users);
-    console.log(`from join server: ${rooms}`)
+    console.log(`from join server: ${rooms}`);
     socket.emit("fetch rooms", Array.from(rooms));
   });
 
@@ -60,9 +60,9 @@ io.on("connection", (socket) => {
     clearPlayerGame();
     socket.join(roomName);
     currentRoom = roomName;
-    console.log(socket.rooms)
+    console.log(socket.rooms);
     const players = rooms.get(roomName).players;
-    io.emit("update room", roomName);
+    io.emit("update room", roomName, true);
     for (const i in players) {
       if (players[i] === null) {
         playerIndex = i;
@@ -73,13 +73,26 @@ io.on("connection", (socket) => {
     cb(rooms.get(roomName), playerIndex);
   });
 
-  socket.on("leave room", () => {
+  socket.on("leave room", (cb) => {
     //you can leave the room
+    console.log(socket.rooms);
+    const players = rooms.get(currentRoom).players;
+    if (players[playerIndex] !== null) {
+      rooms.get(currentRoom).players[playerIndex] = null;
+    }
+
+    socket.leave(currentRoom);
+    io.emit("update room", currentRoom, false);
+    cb(rooms.get(currentRoom));
+    playerIndex = -1;
+    currentRoom = "";
+    clearPlayerGame();
   });
 
   socket.on("create room", (roomName, gridSize, playerNum) => {
-    if(rooms.get(roomName))
+    if (rooms.get(roomName)) {
       return;
+    }
 
     const room = {
       owner: socket.id,
@@ -88,7 +101,7 @@ io.on("connection", (socket) => {
       players: [],
     };
 
-    for(let i = 0; i < playerNum; i++){
+    for (let i = 0; i < playerNum; i++) {
       room.players.push(null);
     }
     rooms.set(roomName, room);
@@ -103,7 +116,7 @@ io.on("connection", (socket) => {
     io.emit("new room", rooms);
   });
 
-  socket.on("select", (target, initializer) => {
+  socket.on("selectLine", (target, initializer) => {
     console.log(
       `Select from player ${playerIndex} in room ${currentRoom} with target ${target}`
     );
@@ -111,6 +124,10 @@ io.on("connection", (socket) => {
     // Emit the move to the other players
     // TODO find way to emit the move only to players in the room
     //socket.broadcast.to(room).emit("select", room, target);
-    io.to(currentRoom).emit("select", target, playerIndex);
+    io.to(currentRoom).emit("selectLine", target, playerIndex);
+  });
+
+  socket.on("user left", (room) => {
+    io.to(room).emit("user left");
   });
 });

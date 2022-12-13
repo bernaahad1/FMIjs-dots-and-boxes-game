@@ -1,11 +1,11 @@
-import { socket } from "./connectToServer.js";
+import { onLeaveRoom, socket } from "./connectToServer.js";
 
 // TODO BERNA please make the code more understandable
 
 export const board = document.getElementsByClassName("game-board")[0];
 export const mainConatiner = document.getElementsByClassName("main-content")[0];
 
-export const boxes = (size) => {
+export const generateBoxes = (size) => {
   const bx = new Map([]);
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
@@ -21,7 +21,7 @@ export class GameBoard {
     this.size = parseInt(size) + 1;
     this.players = players;
     this.playerScores = players.map((el) => 0);
-    this.boxes = boxes(parseInt(size) + 1);
+    this.boxes = generateBoxes(parseInt(size) + 1);
     this.playerIndex = playerIndex;
   }
 
@@ -30,6 +30,9 @@ export class GameBoard {
   }
 
   createBoard() {
+    const gameRoom = document.createElement("section");
+    gameRoom.className = "game-room";
+
     const gameBoard = document.createElement("section");
     gameBoard.className = "game-board";
 
@@ -69,8 +72,9 @@ export class GameBoard {
     const gameState =
       this.playerIndex == 0 ? "Your turn" : "Waiting for opponent to play";
 
-    mainConatiner.innerHTML += `<div class="room title header">
-      <button class="create-room exit">Exit game</button>
+    //render header
+    gameRoom.innerHTML += `<div class="room title header">
+      <button class="create-room exit-room">Exit game</button>
           <img src="./logo_FMIJS.png" alt="Dots and Boxes"></img>
       </div>
       <div class="game-state"><h1 class="game-state-turn">${gameState}</h1></div>
@@ -83,11 +87,8 @@ export class GameBoard {
     }</span></h1>
       </div>`;
 
-    mainConatiner.appendChild(gameBoard);
-    mainConatiner.innerHTML += `<h1 class="center">Room: ${this.name}</h1>`;
-
-    const lines = [...document.querySelectorAll("button")];
-    lines.forEach((el) => el.addEventListener("click", this.onLineClick));
+    gameRoom.appendChild(gameBoard);
+    gameRoom.innerHTML += `<h1 class="center">Room: ${this.name}</h1>`;
 
     const disableDiv = document.createElement("div");
     disableDiv.className = "overlay-disable";
@@ -95,11 +96,21 @@ export class GameBoard {
     if (this.playerIndex == 0) {
       disableDiv.className += " hidden";
     }
-    mainConatiner.appendChild(disableDiv);
+    gameRoom.appendChild(disableDiv);
+    mainConatiner.appendChild(gameRoom);
+
+    const lines = [...document.querySelectorAll("button.line")];
+    lines.forEach((el) => el.addEventListener("click", this.onLineClick));
+
+    document
+      .getElementsByClassName("exit-room")[0]
+      .addEventListener("click", onLeaveRoom);
   }
 
   updateBoxState(id, color, playerIndex) {
     this.boxes[id]++;
+    
+    console.log(this.boxes);
     if (this.boxes[id] >= 4) {
       document.getElementById(`${id}`).style.backgroundColor = color;
 
@@ -113,7 +124,7 @@ export class GameBoard {
   }
 
   onLineClick(event) {
-    socket.emit("select", event.target.className, this.playerIndex);
+    socket.emit("selectLine", event.target.className, this.playerIndex);
   }
 
   onScoreUpdate(index) {
