@@ -6,28 +6,34 @@ export const board = document.getElementsByClassName("game-board")[0];
 export const mainConatiner = document.getElementsByClassName("main-content")[0];
 
 export const generateBoxes = (size) => {
-  const bx = new Map([]);
+  const bx = new Map();
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
-      bx[i + "" + j] = {};
-      bx[i + "" + j].score = 0;
-      bx[i + "" + j].owner = -1;
+      bx.set(`${i}${j}`, {score: 0, owner: -1});
     }
   }
   return bx;
 };
 
 export class GameBoard {
-  constructor(name, size, players, playerIndex, plTurn, plScore, savedBoxes, clickedLines) {
+  constructor(name, size, players, playerIndex, plTurn, savedBoxes, clickedLines) {
     this.name = name;
     this.size = parseInt(size) + 1;
     this.players = players;
-    this.playerScores = plScore;
-    this.boxes = savedBoxes === '' ? generateBoxes(parseInt(size) + 1) : savedBoxes;
+    this.playerScores = players.map((el) => 0)
+    this.boxes = savedBoxes === '' ? generateBoxes(parseInt(size) + 1) : new Map(savedBoxes);
     this.playerIndex = playerIndex;
     this.savedBoxes = savedBoxes;
     this.plTurn = plTurn;
     this.clickedLines = clickedLines || [];
+
+    if(savedBoxes !== ''){
+      this.boxes.forEach((val, key) =>{
+        if(val.owner !== -1){
+          this.playerScores[val.owner]++;
+        }
+      })
+    }
   }
 
   createScoreTable() {
@@ -123,25 +129,27 @@ export class GameBoard {
       .getElementsByClassName("exit-room")[0]
       .addEventListener("click", onLeaveRoom);
 
+    //load clicked elements
     this.clickedLines.forEach(cl => {
       const myEl = document.getElementsByClassName(cl)[0];
       myEl.style.opacity = 100;
       myEl.disabled = true;
     })
+
+    //load scored boxes
   }
 
   updateBoxState(id, color, playerIndex) {
-    if(this.boxes[id] === undefined){
-      this.boxes[id] = {score: NaN, owner: -1};
+    if(this.boxes.get(id) === undefined){
+      this.boxes.set(id, {score: NaN, owner: -1});
     }
-    else this.boxes[id].score++;
+    else this.boxes.get(id).score++;
 
     console.log(this.boxes);
-    socket.emit("save boxes", this.name, this.boxes);
-    if (this.boxes[id].score >= 4) {
+    socket.emit("save boxes", this.name, Array.from(this.boxes));
+    if (this.boxes.get(id).score >= 4) {
       document.getElementById(`${id}`).style.backgroundColor = color;
-      this.boxes[id].owner = playerIndex;
-      socket.emit("score", this.name, playerIndex);
+      this.boxes.get(id).owner = playerIndex;
       this.onScoreUpdate(playerIndex);
       return true;
       // document.getElementById(

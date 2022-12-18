@@ -17,7 +17,7 @@ export const onChooseRoom = (event) => {
     playerIndex = index;
     console.log(`Player ${playerIndex} has connected`);
 
-    gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex, r.plTurn, r.plScore, r.savedBoxes, r.clickedLines);
+    gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex, r.plTurn, r.savedBoxes, r.clickedLines);
     gameBoard.createBoard();
     console.log(gameBoard);
 

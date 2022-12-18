@@ -13,7 +13,7 @@ server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Handle socket connection
 let users = []; //{username, ownedGames = [], id}
-const rooms = new Map(); //{owner, name, gridSize, players:[,], plScore:[0,0], plTurn:1, savedBoxes:[]}
+const rooms = new Map(); //{owner, name, gridSize, players:[,], plTurn:1, savedBoxes:[]}
 
 io.on("connection", (socket) => {
   console.log(`New WS Connection. Connection id: ${socket.id}`);
@@ -90,7 +90,6 @@ io.on("connection", (socket) => {
       name: roomName,
       size: gridSize,
       players: [],
-      plScore: [],
       savedBoxes: '',
       plTurn: 0,
       connected: 0,
@@ -99,7 +98,6 @@ io.on("connection", (socket) => {
 
     for (let i = 0; i < playerNum; i++) {
       room.players.push(null);
-      room.plScore.push(0);
     }
     rooms.set(roomName, room);
 
@@ -128,9 +126,6 @@ io.on("connection", (socket) => {
   })
   socket.on("set turn", (turn) => {
     rooms.get(currentRoom).plTurn = turn;
-  })
-  socket.on("score", (roomName, player) =>{
-    rooms.get(roomName).plScore[player]++;
   })
 
   socket.on("user left", (room) => {
