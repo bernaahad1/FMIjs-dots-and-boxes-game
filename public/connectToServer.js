@@ -17,7 +17,7 @@ export const onChooseRoom = (event) => {
     playerIndex = index;
     console.log(`Player ${playerIndex} has connected`);
 
-    gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex);
+    gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex, r.plTurn, r.plScore, r.savedBoxes, r.clickedLines);
     gameBoard.createBoard();
     console.log(gameBoard);
 
@@ -82,7 +82,8 @@ socket.on("selectLine", (className, initializer) => {
     );
 
     if (!result1 && !result2) {
-      console.log("other turn");
+      console.log(`other saved turn => ${playerIndex == 0 ? 1 : 0}`);
+      socket.emit("set turn", playerIndex == 0 ? 1 : 0);
       gameBoard.onChangePlayTurn(false);
     }
 

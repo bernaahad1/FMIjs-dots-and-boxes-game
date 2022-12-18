@@ -13,8 +13,8 @@ socket.on("fetch rooms", (r) => {
   generateAllExitingRooms();
 });
 
-socket.on("update room", (roomName, joined) => {
-  updateRoomButton(roomName, joined);
+socket.on("update room", (room) => {
+  updateRoomButton(room);
 });
 
 const onCreateRoom = (
@@ -53,15 +53,10 @@ const createRoomButton = (roomName, numPlayers, playersConnected, _state) => {
   allRooms.appendChild(button);
 };
 
-const updateRoomButton = (roomName, joined) => {
-  const button = document.getElementById(`${roomName}`);
-  const numPlayers = Number(button.innerHTML.match(/\/([0-9]*?) /)[1]);
-  let connected = Number(button.innerHTML.match(/ ([0-9]*?)\//)[1]);
-  if (joined && connected + 1 <= numPlayers) {
-    connected++;
-  } else if (!joined && connected - 1 >= 0) {
-    connected--;
-  }
+const updateRoomButton = (room) => {
+  const button = document.getElementById(`${room.name}`);
+  const numPlayers = room.players.length;
+  let connected = room.connected;
   const state = numPlayers === connected ? "playing" : "pending";
 
   button.innerHTML = button.innerHTML.replace(/ [0-9]*?\//, ` ${connected}/`);
@@ -94,9 +89,14 @@ const generateAllExitingRooms = () => {
     );
   });
 
-  const roomButtons = document.getElementsByClassName("ChooseRoom");
+  let roomButtons = document.getElementsByClassName("ChooseRoom");
+  console.log(roomButtons)
+  for (let i = 0; i < roomButtons.length; i++) {
+    roomButtons[i].addEventListener("click", onChooseRoom);
+  }
 
-  for (let i = 0; i < rooms.size; i++) {
+  roomButtons = document.getElementsByClassName("ChooseRoomFull")
+  for (let i = 0; i < roomButtons.length; i++) {
     roomButtons[i].addEventListener("click", onChooseRoom);
   }
 };

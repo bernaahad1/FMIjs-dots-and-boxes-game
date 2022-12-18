@@ -8,13 +8,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-//app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static("public"));
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Handle socket connection
 let users = []; //{username, ownedGames = [], id}
-const rooms = new Map(); //{owner, name, gridSize, players:[,]}
+const rooms = new Map(); //{owner, name, gridSize, players:[,], plScore:[0,0], plTurn:1, savedBoxes:[]}
 
 io.on("connection", (socket) => {
   console.log(`New WS Connection. Connection id: ${socket.id}`);
@@ -23,10 +22,13 @@ io.on("connection", (socket) => {
 
   const clearPlayerGame = () => {
     const connectedRooms = Array.from(socket.rooms);
-    console.log(connectedRooms);
     if (connectedRooms.length == 1) return;
     const room = connectedRooms.pop();
-    rooms.get(room).players[playerIndex] = null;
+    if(playerIndex !== -1 ){
+      rooms.get(room).players[playerIndex] = null;
+      rooms.get(room).connected--;
+      io.emit("update room", rooms.get(room));
+    }    
     socket.leave(room);
     playerIndex = -1;
     currentRoom = "";
@@ -39,7 +41,6 @@ io.on("connection", (socket) => {
     };
     users.push(user);
     io.emit("new user", users);
-    console.log(`from join server: ${rooms}`);
     socket.emit("fetch rooms", Array.from(rooms));
   });
 
@@ -60,13 +61,13 @@ io.on("connection", (socket) => {
     clearPlayerGame();
     socket.join(roomName);
     currentRoom = roomName;
-    console.log(socket.rooms);
     const players = rooms.get(roomName).players;
-    io.emit("update room", roomName, true);
     for (const i in players) {
       if (players[i] === null) {
         playerIndex = i;
         rooms.get(roomName).players[i] = true;
+        rooms.get(roomName).connected++;
+        io.emit("update room", rooms.get(roomName));
         break;
       }
     }
@@ -75,18 +76,8 @@ io.on("connection", (socket) => {
 
   socket.on("leave room", (cb) => {
     //you can leave the room
-    console.log(socket.rooms);
-    const players = rooms.get(currentRoom).players;
-    if (players[playerIndex] !== null) {
-      rooms.get(currentRoom).players[playerIndex] = null;
-    }
-
-    socket.leave(currentRoom);
-    io.emit("update room", currentRoom, false);
-    cb(rooms.get(currentRoom));
-    playerIndex = -1;
-    currentRoom = "";
     clearPlayerGame();
+    cb();
   });
 
   socket.on("create room", (roomName, gridSize, playerNum) => {
@@ -99,10 +90,16 @@ io.on("connection", (socket) => {
       name: roomName,
       size: gridSize,
       players: [],
+      plScore: [],
+      savedBoxes: '',
+      plTurn: 0,
+      connected: 0,
+      clickedLines: [],
     };
 
     for (let i = 0; i < playerNum; i++) {
       room.players.push(null);
+      room.plScore.push(0);
     }
     rooms.set(roomName, room);
 
@@ -116,16 +113,25 @@ io.on("connection", (socket) => {
     io.emit("new room", rooms);
   });
 
-  socket.on("selectLine", (target, initializer) => {
+  socket.on("selectLine", (className, initializer) => {
     console.log(
-      `Select from player ${playerIndex} in room ${currentRoom} with target ${target}`
+      `Select from player ${playerIndex} in room ${currentRoom} with target ${className}`
     );
 
-    // Emit the move to the other players
-    // TODO find way to emit the move only to players in the room
-    //socket.broadcast.to(room).emit("select", room, target);
-    io.to(currentRoom).emit("selectLine", target, playerIndex);
+    rooms.get(currentRoom).clickedLines.push(className);
+
+    io.to(currentRoom).emit("selectLine", className, playerIndex);
   });
+
+  socket.on("save boxes", (roomName, boxes) => {
+    rooms.get(roomName).savedBoxes = boxes;
+  })
+  socket.on("set turn", (turn) => {
+    rooms.get(currentRoom).plTurn = turn;
+  })
+  socket.on("score", (roomName, player) =>{
+    rooms.get(roomName).plScore[player]++;
+  })
 
   socket.on("user left", (room) => {
     io.to(room).emit("user left");
