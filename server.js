@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-app.use(express.static("public"));
+app.use(express.static("public/dist"));
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Handle socket connection
@@ -24,11 +24,11 @@ io.on("connection", (socket) => {
     const connectedRooms = Array.from(socket.rooms);
     if (connectedRooms.length == 1) return;
     const room = connectedRooms.pop();
-    if(playerIndex !== -1 ){
+    if (playerIndex !== -1) {
       rooms.get(room).players[playerIndex] = null;
       rooms.get(room).connected--;
       io.emit("update room", rooms.get(room));
-    }    
+    }
     socket.leave(room);
     playerIndex = -1;
     currentRoom = "";
@@ -90,7 +90,7 @@ io.on("connection", (socket) => {
       name: roomName,
       size: gridSize,
       players: [],
-      savedBoxes: '',
+      savedBoxes: "",
       plTurn: 0,
       connected: 0,
       clickedLines: [],
@@ -123,10 +123,10 @@ io.on("connection", (socket) => {
 
   socket.on("save boxes", (roomName, boxes) => {
     rooms.get(roomName).savedBoxes = boxes;
-  })
+  });
   socket.on("set turn", (turn) => {
     rooms.get(currentRoom).plTurn = turn;
-  })
+  });
 
   socket.on("user left", (room) => {
     io.to(room).emit("user left");

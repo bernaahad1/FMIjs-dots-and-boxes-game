@@ -1,7 +1,9 @@
 import { onLeaveRoom, socket } from "./connectToServer.js";
 import { createHome } from "./home.js";
-// import "./gameRoom.css";
-// import "./home.css";
+import img from "./assets/logo_FMIJS.png";
+
+import "./gameRoom.css";
+import "./home.css";
 
 // TODO BERNA please make the code more understandable
 
@@ -104,7 +106,7 @@ export class GameBoard {
     //render header
     gameRoom.innerHTML += `<div class="room title header">
       <button class="create-room exit-room">Exit game</button>
-          <img src="./logo_FMIJS.png" alt="Dots and Boxes"></img>
+          <img src="${img}" alt="Dots and Boxes"></img>
       </div>
       <div class="game-state"><h1 class="game-state-turn">${gameState}</h1></div>`;
 

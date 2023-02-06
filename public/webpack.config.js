@@ -9,10 +9,16 @@ const isProduction = process.env.NODE_ENV == "production";
 const stylesHandler = MiniCssExtractPlugin.loader;
 
 const config = {
-  entry: "./src/index.js",
+  // entry: "./src/index.js",
+  entry: {
+    client: "./src/index.js",
+    // server: "../server.js",
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
+    filename: "[name].bundle.js",
   },
+  target: "web",
   devServer: {
     open: true,
     host: "localhost",
@@ -50,11 +56,29 @@ const config = {
   },
 };
 
+const serverConfig = {
+  entry: {
+    server: "../server.js",
+  },
+  output: {
+    path: path.join(__dirname, "dist"),
+    filename: "[name].bundle.js",
+  },
+  target: "node",
+  externals: {
+    express: "express",
+    bufferutil: "bufferutil",
+    "utf-8-validate": "utf-8-validate",
+  },
+};
+
 module.exports = () => {
   if (isProduction) {
     config.mode = "production";
+    serverConfig.mode = "production";
   } else {
     config.mode = "development";
+    serverConfig.mode = "development";
   }
-  return config;
+  return [config, serverConfig];
 };
