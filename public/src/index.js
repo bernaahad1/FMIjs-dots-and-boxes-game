@@ -27,9 +27,20 @@ export class AppComponent extends HTMLElement {
     this.#_shadowRoot.appendChild(template.content.cloneNode(true));
     // this.#_shadowRoot.appendChild(home);
   }
+
+  renderGameRoom(gameRoom) {
+    this.#_shadowRoot.querySelector("home-page").setAttribute("hidden", true);
+    this.#_shadowRoot.querySelector("main").appendChild(gameRoom);
+  }
+
+  resetToHome() {
+    this.#_shadowRoot.innerHTML = "";
+    this.#_shadowRoot.appendChild(template.content.cloneNode(true));
+  }
 }
 
 customElements.define("app-root", AppComponent);
 
 export const app = new AppComponent();
+
 document.body.appendChild(app);

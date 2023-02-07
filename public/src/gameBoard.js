@@ -1,108 +1,219 @@
-import { GameBoard } from "./index_old.js";
+import { onLeaveRoom, socket } from "./gameBoardActions.js";
+import { style } from "./styles.js";
 
-export const socket = io();
+import img from "./assets/logo_FMIJS.png";
 
-let username = "user 1";
-let playerIndex = -1;
-let currentRoom = "";
-let gameBoard = undefined;
-
-// socket.emit("join server", username);
-
-export const onChooseRoom = (event) => {
-  const currentRoom = event.target.value;
-  console.log(`updated currentRoom to: ${currentRoom}`);
-  socket.emit("join room", currentRoom, (r, index) => {
-    console.log(r);
-    playerIndex = index;
-    console.log(`Player ${playerIndex} has connected`);
-
-    gameBoard = new GameBoard(r.name, r.size, r.players, playerIndex, r.plTurn, r.savedBoxes, r.clickedLines);
-    gameBoard.createBoard();
-    console.log(gameBoard);
-
-    // document.getElementById("home-menu").className = "home-row-hidden";
-
-    if (playerIndex === -1) {
-      //He should only watch, but not play
-    }
-  });
-};
-
-export const onLeaveRoom = (event) => {
-  socket.emit("leave room", () => {
-    console.log(`Player ${playerIndex} has disconnected`);
-    gameBoard = undefined;
-    playerIndex = -1;
-
-    document.getElementById("home-menu").className = "home-row";
-    const gameRoom = document.getElementsByClassName("game-room")[0];
-    document.getElementsByClassName("main-content")[0].removeChild(gameRoom);
-  });
-};
-
-socket.on("new user", (users) => {
-  console.log("users change");
-});
-
-socket.on("user left", (room) => {
-  if (room !== gameBoard.name) {
-    return;
-  }
-  const gameRoom = document.getElementsByClassName("game-room")[0];
-  document.getElementsByClassName("main-content")[0].removeChild(gameRoom);
-
-  //just for now
-  gameBoard = new GameBoard(
-    gameBoard.name,
-    gameBoard.size - 1,
-    gameBoard.players,
-    playerIndex
-  );
-  console.log("You win");
-});
-
-//selecting lines
-socket.on("selectLine", (className, initializer) => {
-  const myEl = document.getElementsByClassName(className)[0];
-  console.log(`Start: ${initializer}; Element to update: ${myEl}`);
-  myEl.style.opacity = 100;
-  myEl.disabled = true;
-
-  if (initializer === playerIndex) {
-    const result1 = gameBoard.updateBoxState(
-      myEl.classList[3],
-      "green",
-      initializer
-    );
-    const result2 = gameBoard.updateBoxState(
-      myEl.classList[4],
-      "green",
-      initializer
-    );
-
-    if (!result1 && !result2) {
-      console.log(`other saved turn => ${playerIndex == 0 ? 1 : 0}`);
-      socket.emit("set turn", playerIndex == 0 ? 1 : 0);
-      gameBoard.onChangePlayTurn(false);
-    }
-
-    return;
-  } else {
-    const result1 = gameBoard.updateBoxState(
-      myEl.classList[3],
-      "red",
-      initializer
-    );
-    const result2 = gameBoard.updateBoxState(
-      myEl.classList[4],
-      "red",
-      initializer
-    );
-
-    if (!result1 && !result2) {
-      console.log("my turn");
-      gameBoard.onChangePlayTurn(true);
+export const generateBoxes = (size) => {
+  const bx = new Map();
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      bx.set(`${i}${j}`, { score: 0, owner: -1 });
     }
   }
-});
+  return bx;
+};
+
+function createHomeTemplate() {
+  const templateString = `
+  <style>${style}</style>
+        <section class="game-room">
+        </section>
+    `;
+
+  const templateElement = document.createElement("template");
+  templateElement.innerHTML = templateString;
+  return templateElement;
+}
+
+const template = createHomeTemplate();
+
+export class GameBoard extends HTMLElement {
+  #_shadowRoot = null;
+
+  constructor(
+    name,
+    size,
+    players,
+    playerIndex,
+    plTurn,
+    savedBoxes,
+    clickedLines
+  ) {
+    super();
+
+    this.#_shadowRoot = this.attachShadow({ mode: "closed" });
+    this.#_shadowRoot.appendChild(template.content.cloneNode(true));
+
+    this.name = name;
+    this.size = parseInt(size) + 1;
+    this.players = players;
+    this.playerScores = players.map((el) => 0);
+    this.boxes =
+      savedBoxes === ""
+        ? generateBoxes(parseInt(size) + 1)
+        : new Map(savedBoxes);
+    this.playerIndex = playerIndex;
+    this.savedBoxes = savedBoxes;
+    this.plTurn = plTurn;
+    this.clickedLines = clickedLines || [];
+
+    if (savedBoxes !== "") {
+      this.boxes.forEach((val, key) => {
+        if (val.owner !== -1) {
+          this.playerScores[val.owner]++;
+        }
+      });
+    }
+  }
+
+  connectedCallback() {
+    this.createBoard();
+
+    const lines = [...this.#_shadowRoot.querySelectorAll("button.line")];
+    lines.forEach((el) => el.addEventListener("click", this.onLineClick));
+
+    this.#_shadowRoot
+      .querySelector(".exit-room")
+      .addEventListener("click", onLeaveRoom);
+
+    //load clicked elements
+    this.clickedLines.forEach((cl) => {
+      const myEl = this.#_shadowRoot.querySelector(`#${cl}`)[0];
+      myEl.style.opacity = 100;
+      myEl.disabled = true;
+    });
+  }
+
+  createScoreTable() {
+    return ``;
+  }
+
+  createBoard() {
+    const gameRoom = this.#_shadowRoot.querySelector(".game-room");
+    // gameRoom.className = "game-room";
+
+    const gameBoard = document.createElement("section");
+    gameBoard.className = "game-board";
+
+    for (let i = 0; i < this.size; i++) {
+      const section = document.createElement("section");
+      section.className = "row";
+
+      for (let j = 0; j < this.size; j++) {
+        const box = document.createElement("div");
+        box.className = "box";
+        box.id = `${i}${j}`;
+
+        box.innerHTML += `<div class="dot top-left"></div>`;
+
+        //Do not render top line if box is from last coll
+        if (j < this.size - 1) {
+          box.innerHTML += `<button class="line horizontal top ${i - 1}${j} 
+          ${i}${j}"></button>`;
+        }
+
+        //Do not render left line if box is from last row
+        if (i < this.size - 1) {
+          box.innerHTML += `<button class="line vertical left ${i}${j - 1} 
+          ${i}${j}"></button>`;
+        }
+
+        section.appendChild(box);
+      }
+
+      gameBoard.appendChild(section);
+    }
+
+    let opponentIndex = this.playerIndex == 1 ? 0 : 1;
+    let gameState =
+      this.playerIndex == this.plTurn
+        ? "Your turn"
+        : "Waiting for opponent to play";
+
+    if (this.playerIndex === -1) {
+      opponentIndex = -1;
+      gameState = "You can only watch";
+    }
+
+    //render header
+    gameRoom.innerHTML += `<div class="room title header">
+      <button class="create-room exit-room">Exit game</button>
+          <img src="${img}" alt="Dots and Boxes"></img>
+      </div>
+      <div class="game-state"><h1 class="game-state-turn">${gameState}</h1></div>`;
+
+    //render scores
+    if (this.playerIndex === -1) {
+      gameRoom.innerHTML += `<div class="players">
+          <h1 class="my-score">Player 1: <span class="my-score player-0">${this.playerScores[0]}</span></h1>
+          <h1>Player 2: <span class="opponent-sore player-1">${this.playerScores[1]}</span></h1>
+        </div>`;
+    } else {
+      gameRoom.innerHTML += `<div class="players">
+          <h1 class="my-score">Your score: <span class="my-score player-${
+            this.playerIndex
+          }">${this.playerScores[this.playerIndex]}</span></h1>
+          <h1>Opponent score: <span class="opponent-sore player-${opponentIndex}">${
+        this.playerScores[opponentIndex]
+      }</span></h1>
+        </div>`;
+    }
+    gameRoom.appendChild(gameBoard);
+    gameRoom.innerHTML += `<h1 class="center">Room: ${this.name}</h1>`;
+
+    const disableDiv = document.createElement("div");
+    disableDiv.className = "overlay-disable";
+
+    if (this.playerIndex == this.plTurn) {
+      disableDiv.className += " hidden";
+    }
+    gameRoom.appendChild(disableDiv);
+
+    // TODO load scored boxes
+  }
+
+  updateBoxState(id, color, playerIndex) {
+    if (this.boxes.get(id) === undefined) {
+      this.boxes.set(id, { score: NaN, owner: -1 });
+    } else this.boxes.get(id).score++;
+
+    console.log(this.boxes);
+    socket.emit("save boxes", this.name, Array.from(this.boxes));
+    if (this.boxes.get(id).score >= 4) {
+      document.getElementById(`${id}`).style.backgroundColor = color;
+      this.boxes.get(id).owner = playerIndex;
+      this.onScoreUpdate(playerIndex);
+      return true;
+      // document.getElementById(
+      //   `${id}`
+      // ).innerHTML += `<h1 class="winnerText">B<h1>`;
+    }
+    return false;
+  }
+
+  onLineClick(event) {
+    socket.emit("selectLine", event.target.className, this.playerIndex);
+  }
+
+  onScoreUpdate(index) {
+    this.playerScores[index] += 1;
+    const myEl = document.getElementsByClassName(`player-${index}`)[0];
+    myEl.innerHTML = this.playerScores[index];
+  }
+
+  onChangePlayTurn(myTurn) {
+    const disableDiv = document.getElementsByClassName("overlay-disable")[0];
+
+    if (myTurn && this.playerIndex !== -1) {
+      document.getElementsByClassName("game-state-turn")[0].innerHTML =
+        "Your turn";
+      disableDiv.className = "overlay-disable hidden";
+    } else if (this.playerIndex !== -1) {
+      document.getElementsByClassName("game-state-turn")[0].innerHTML =
+        "Waiting for opponent to play";
+      disableDiv.className = "overlay-disable";
+    }
+  }
+}
+
+customElements.define("game-board", GameBoard);
