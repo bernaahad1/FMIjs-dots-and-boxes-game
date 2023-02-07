@@ -1,4 +1,4 @@
-import { GameBoard } from "./index.js";
+import { GameBoard } from "./index_old.js";
 
 export const socket = io();
 
@@ -7,7 +7,7 @@ let playerIndex = -1;
 let currentRoom = "";
 let gameBoard = undefined;
 
-socket.emit("join server", username);
+// socket.emit("join server", username);
 
 export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
@@ -21,7 +21,7 @@ export const onChooseRoom = (event) => {
     gameBoard.createBoard();
     console.log(gameBoard);
 
-    document.getElementById("home-menu").className = "home-row-hidden";
+    // document.getElementById("home-menu").className = "home-row-hidden";
 
     if (playerIndex === -1) {
       //He should only watch, but not play
