@@ -1,13 +1,9 @@
-import "./gameRoom.css";
-import "./home.css";
-import { home } from "./home.js";
-// import "./gameRoom.css";
-// import "./home.css";
+import "./home.js";
 
 function createMainTemplate() {
   const templateString = `
         <main class="main-content">
-        <home-page></home-page>
+          <home-page></home-page>
         </main>
     `;
 

@@ -1,9 +1,7 @@
 import { GameBoard } from "./gameBoard.js";
 
-export const socket = io();
+import { socket, playerIndex, setPlayerIndex, currentRoom } from "./client_db.js";
 
-let playerIndex = -1;
-let currentRoom = "";
 let gameBoard = undefined;
 
 export const onChooseRoom = (event) => {
@@ -11,7 +9,8 @@ export const onChooseRoom = (event) => {
   console.log(`updated currentRoom to: ${currentRoom}`);
   socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
-    playerIndex = index;
+    // playerIndex = index;
+    setPlayerIndex(index);
     console.log(`Player ${playerIndex} has connected`);
 
     gameBoard = new GameBoard(
@@ -37,15 +36,16 @@ export const onLeaveRoom = (event) => {
   socket.emit("leave room", () => {
     console.log(`Player ${playerIndex} has disconnected`);
     gameBoard = undefined;
-    playerIndex = -1;
+    // playerIndex = -1;
+    setPlayerIndex(-1);
 
     document.getElementsByTagName("app-root")[0].resetToHome();
   });
 };
 
-socket.on("new user", (users) => {
-  console.log("users change");
-});
+// socket.on("new user", (users) => {
+//   console.log("users change");
+// });
 
 socket.on("user left", (room) => {
   if (room !== gameBoard.name) {

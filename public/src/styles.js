@@ -216,6 +216,7 @@ h1.my-score {
     transition-duration: 0.4s;
     cursor: pointer;
     border-color: #cbeefd;
+    min-width: 280px;
 }
 .ChooseRoom:hover{
     background-color: #cbeefd;
@@ -233,6 +234,7 @@ h1.my-score {
     transition-duration: 0.4s;
     cursor: pointer;
     border: none;
+    min-width: 280px;
 }
 .ChooseRoomFull:hover{
     background-color: #ffffff;

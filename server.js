@@ -82,7 +82,7 @@ io.on("connection", (socket) => {
 
   socket.on("create room", (roomName, gridSize, playerNum) => {
     if (rooms.get(roomName)) {
-      return;
+      return ;
     }
 
     const room = {

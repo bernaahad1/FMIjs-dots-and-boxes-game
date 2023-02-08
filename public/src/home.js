@@ -1,36 +1,8 @@
-import { onChooseRoom, socket } from "./gameBoardActions.js";
+import { onChooseRoom } from "./gameBoardActions.js";
+import { socket, rooms, username } from "./client_db.js";
+
 import img from "./assets/logo_FMIJS.png";
 import { style } from "./styles.js";
-import "./gameRoom.css";
-import "./home.css";
-
-let rooms = new Map();
-let username = "user 1";
-
-socket.on("new room", (r) => {
-  rooms = new Map(r);
-  document
-    .getElementsByTagName("app-root")[0]
-    .shadowRoot.querySelector("home-page")
-    .generateAllExitingRooms();
-});
-
-socket.on("update room", (room) => {
-  document
-    .getElementsByTagName("app-root")[0]
-    .shadowRoot.querySelector("home-page")
-    .updateRoomButton(room);
-});
-
-socket.on("fetch rooms", (r) => {
-  rooms = new Map(r);
-
-  console.log("fetch rooms");
-  document
-    .getElementsByTagName("app-root")[0]
-    .shadowRoot.querySelector("home-page")
-    .generateAllExitingRooms();
-});
 
 function createHomeTemplate() {
   const templateString = `
@@ -101,7 +73,7 @@ export class Home extends HTMLElement {
   };
 
   onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 4) => {
-    console.log(`${this.newRoomName} and ${this.newRoomSize}`);
+    console.log(`Create ${this.newRoomName} with size ${this.newRoomSize}`);
     if (this.newRoomName === "") {
       alert("Add name");
       return;
@@ -115,7 +87,6 @@ export class Home extends HTMLElement {
       return;
     }
     socket.emit("create room", this.newRoomName, this.newRoomSize, 2);
-    this.createRoomButton(this.newRoomName, numPlayers, 0, "waiting");
   };
 
   createRoomButton(roomName, numPlayers, playersConnected, _state) {

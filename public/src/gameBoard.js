@@ -1,4 +1,5 @@
-import { onLeaveRoom, socket } from "./gameBoardActions.js";
+import { socket } from "./client_db.js"
+import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
 
 import img from "./assets/logo_FMIJS.png";
@@ -15,10 +16,10 @@ export const generateBoxes = (size) => {
 
 function createHomeTemplate() {
   const templateString = `
-  <style>${style}</style>
+    <style>${style}</style>
         <section class="game-room">
-        </section>
-    `;
+    </section>
+  `;
 
   const templateElement = document.createElement("template");
   templateElement.innerHTML = templateString;
