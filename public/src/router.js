@@ -2,6 +2,7 @@ import { pathToRegexp } from 'path-to-regexp';
 // import { UserList } from './user-list';
 // import { EditUser } from './edit-user';
 import { Home } from './home.js'
+import { GameBoard } from './gameBoard.js'
 
 export class Router extends HTMLElement {
   #_shadowRoot = null;
@@ -9,12 +10,12 @@ export class Router extends HTMLElement {
 
   routes = {
     '/': Home,
-    // '/edit/:id': EditUser,
+    '/:roomName': GameBoard,
   };
 
   constructor() {
     super();
-    this.#_shadowRoot = this.attachShadow({ mode: 'closed' });
+    this.#_shadowRoot = this.attachShadow({ mode: 'open' });
   }
 
   render(path, skipStatePush = false) {

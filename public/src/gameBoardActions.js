@@ -9,7 +9,6 @@ export const onChooseRoom = (event) => {
   console.log(`updated currentRoom to: ${currentRoom}`);
   socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
-    // playerIndex = index;
     setPlayerIndex(index);
     console.log(`Player ${playerIndex} has connected`);
 
@@ -24,7 +23,7 @@ export const onChooseRoom = (event) => {
     );
     console.log(gameBoard);
 
-    document.getElementsByTagName("app-root")[0].renderGameRoom(gameBoard);
+    //document.getElementsByTagName("app-root")[0].renderGameRoom(gameBoard);
 
     if (playerIndex === -1) {
       //He should only watch, but not play

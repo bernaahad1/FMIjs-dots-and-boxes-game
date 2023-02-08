@@ -14,28 +14,27 @@ socket.on("new user", (users) => {
 });
 
 socket.on("new room", (r) => {
+  const homePage = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router").shadowRoot.querySelector("home-page");
   rooms = new Map(r);
-  document
-    .getElementsByTagName("app-root")[0]
-    .shadowRoot.querySelector("home-page")
-    .generateAllExitingRooms();
+  homePage.generateAllExitingRooms();
 });
 
 socket.on("update room", (room) => {
-  document
-    .getElementsByTagName("app-root")[0]
-    .shadowRoot.querySelector("home-page")
-    .updateRoomButton(room);
+  const homePage = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router").shadowRoot.querySelector("home-page");
+  homePage.updateRoomButton(room);
 });
 
 socket.on("fetch rooms", (r) => {
+  const homePage = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router").shadowRoot.querySelector("home-page");
   rooms = new Map(r);
 
   console.log("fetch rooms");
-  document
-    .getElementsByTagName("app-root")[0]
-    .shadowRoot.querySelector("home-page")
-    .generateAllExitingRooms();
+  if(!document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router")){
+    console.log(document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router"))
+    return;
+  }
+  
+  homePage.generateAllExitingRooms();
 });
 
 export { rooms, username, playerIndex, currentRoom };

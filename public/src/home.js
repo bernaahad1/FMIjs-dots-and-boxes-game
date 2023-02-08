@@ -1,3 +1,4 @@
+import "./app-anchor.js";
 import { onChooseRoom } from "./gameBoardActions.js";
 import { socket, rooms, username } from "./client_db.js";
 
@@ -19,7 +20,6 @@ function createHomeTemplate() {
           <div class="home-column">
             <h2>All Rooms</h2>
             <div id="home-all-rooms" class="home-column">
-
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export class Home extends HTMLElement {
 
   createRoomButton(roomName, numPlayers, playersConnected, _state) {
     const allRooms = this.#_shadowRoot.querySelector("#home-all-rooms");
-    let button = document.createElement("button");
+    let button = document.createElement("a");
     button.className = "ChooseRoom";
     button.id = `${roomName}`;
     button.value = `${roomName}`;
@@ -104,6 +104,14 @@ export class Home extends HTMLElement {
 
     button.innerHTML += `${roomName} ${playersConnected}/${numPlayers} ${_state}`;
     allRooms.appendChild(button);
+
+    const b = this.#_shadowRoot.querySelector(`#${roomName}`);
+    b.setAttribute("is", 'app-anchor');
+    b.setAttribute("href", `/${roomName}`);
+    const router = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router");
+    b.addEventListener('app-render', (e) => {
+      router.render(e.detail);
+    });
   }
 
   resetRooms() {

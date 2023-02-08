@@ -13,6 +13,12 @@ main {
   /* padding-top: 10%; */
   background-color: #fff;
 }
+
+a {
+  text-align: center;
+  text-decoration: none;
+}
+
 .game-board {
   width: 80%;
   margin: auto;
