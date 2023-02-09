@@ -1,5 +1,7 @@
 import { onChooseRoom } from "./gameBoardActions.js";
 import { socket, rooms, username } from "./client_db.js";
+import { ModalComponent } from "./modalComponent.js";
+import { AlertComponent } from "./alert.js";
 
 import img from "./assets/logo_FMIJS.png";
 import { style } from "./styles.js";
@@ -21,6 +23,7 @@ function createHomeTemplate() {
             <div id="home-all-rooms" class="home-column">
             </div>
           </div>
+          
         </div>
     `;
 
@@ -74,7 +77,9 @@ export class Home extends HTMLElement {
   onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 4) => {
     console.log(`Create ${this.newRoomName} with size ${this.newRoomSize}`);
     if (this.newRoomName === "") {
-      alert("Add name");
+      const modal = document.createElement("modal-component");
+      modal.innerHTML = `<alert-component title="Wrong input!" description="Please enter room name"/>`;
+      this.#_shadowRoot.appendChild(modal);
       return;
     }
     if (
@@ -82,7 +87,9 @@ export class Home extends HTMLElement {
       this.newRoomSize > 10 ||
       Number(this.newRoomSize) === NaN
     ) {
-      alert("Wrong grid size!!!");
+      const modal = document.createElement("modal-component");
+      modal.innerHTML = `<alert-component title="Wrong grid size!" description="Size must be between 4 and 10"></alert-component>`;
+      this.#_shadowRoot.appendChild(modal);
       return;
     }
     socket.emit("create room", this.newRoomName, this.newRoomSize, 2);
@@ -113,7 +120,7 @@ export class Home extends HTMLElement {
 
   updateRoomButton = (room) => {
     const button = this.#_shadowRoot.querySelector(`#${room.name}`);
-    if(!button){
+    if (!button) {
       return; // if the UI is not loaded
     }
     const numPlayers = room.players.length;
