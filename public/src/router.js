@@ -1,6 +1,4 @@
 import { pathToRegexp } from 'path-to-regexp';
-// import { UserList } from './user-list';
-// import { EditUser } from './edit-user';
 import { Home } from './home.js'
 import { GameBoard } from './gameBoard.js'
 
@@ -18,7 +16,7 @@ export class Router extends HTMLElement {
     this.#_shadowRoot = this.attachShadow({ mode: 'open' });
   }
 
-  render(path, skipStatePush = false) {
+  render(path, instance = '',skipStatePush = false) {
     let componentRoute = null;
     for (const [key, value] of Object.entries(this.routes)) {
       const keyRe = pathToRegexp(key);
@@ -26,6 +24,7 @@ export class Router extends HTMLElement {
       componentRoute = value;
       break;
     }
+    console.log(path)
 
     if (!componentRoute) {
       console.error('Route not found!')
@@ -33,7 +32,8 @@ export class Router extends HTMLElement {
     if (this.#currentPath === path) { return; }
     this.#currentPath = path;
 
-    const instance = new componentRoute();
+    if(instance === '')
+       instance = new componentRoute();
     if (this.#_shadowRoot.children[0]) {
       this.#_shadowRoot.removeChild(this.#_shadowRoot.children[0]);
     }

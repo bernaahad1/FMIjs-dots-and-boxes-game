@@ -1,14 +1,21 @@
 const express = require("express");
 const path = require("path");
 const http = require("http");
-const PORT = process.env.PORT || 3000;
-const socketio = require("socket.io");
+const socketio = require("socket.io")
+const PORT = process.env.PORT || 5000;
 
 const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
+app.use(express.json());
 
-app.use(express.static("public/dist"));
+const server = http.createServer(app);
+const io = socketio(server,{
+    cors: {
+      origin: "http://localhost:8080",
+      methods: ["GET", "POST"]
+    }
+  });
+
+//app.use(express.static("public/dist"));
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Handle socket connection
@@ -100,7 +107,6 @@ io.on("connection", (socket) => {
       room.players.push(null);
     }
     rooms.set(roomName, room);
-
     io.emit("new room", Array.from(rooms));
   });
 

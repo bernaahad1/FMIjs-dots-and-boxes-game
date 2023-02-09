@@ -23,6 +23,9 @@ export const onChooseRoom = (event) => {
     );
     console.log(gameBoard);
 
+    const router = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router");
+    router.render(`/${currentRoom}`,gameBoard);
+
     //document.getElementsByTagName("app-root")[0].renderGameRoom(gameBoard);
 
     if (playerIndex === -1) {
