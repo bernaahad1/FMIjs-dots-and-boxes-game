@@ -182,11 +182,12 @@ export class GameBoard extends HTMLElement {
     } else this.boxes.get(id).score++;
 
     console.log(this.boxes);
+
     socket.emit("save boxes", this.name, Array.from(this.boxes));
     if (this.boxes.get(id).score >= 4) {
-      this.#_shadowRoot.querySelector(`#${id}`).style.backgroundColor = color;
+      this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor = color;
       console.log(
-        this.#_shadowRoot.querySelector(`#${id}`).style.backgroundColor
+        this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor
       );
       this.boxes.get(id).owner = playerIndex;
       this.onScoreUpdate(playerIndex);

@@ -12,7 +12,7 @@ let gameBoard = undefined;
 export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
   console.log(`updated currentRoom to: ${currentRoom}`);
-  
+
   socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
     setPlayerIndex(index);
@@ -29,8 +29,10 @@ export const onChooseRoom = (event) => {
     );
     console.log(gameBoard);
 
-    const router = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router");
-    router.render(`/room/${currentRoom}`,gameBoard);
+    const router = document
+      .getElementsByTagName("app-root")[0]
+      .shadowRoot.querySelector("app-router");
+    router.render(`/room/${currentRoom}`, gameBoard);
 
     //document.getElementsByTagName("app-root")[0].renderGameRoom(gameBoard);
 
@@ -47,7 +49,10 @@ export const onLeaveRoom = (event) => {
     // playerIndex = -1;
     setPlayerIndex(-1);
 
-    const router = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router");
+    const router = document
+      .getElementsByTagName("app-root")[0]
+      .shadowRoot.querySelector("app-router");
+      
     router.render(`/`);
     //document.getElementsByTagName("app-root")[0].resetToHome();
   });
@@ -90,14 +95,16 @@ socket.on("selectLine", (className, id, initializer) => {
 
   const classList = className.split(" ").filter((str) => pattern.test(str));
 
+  console.log(classList);
+
   if (initializer === playerIndex) {
     const result1 = gameBoard.updateBoxState(
-      `box-${classList[3]}`,
+      `${classList[3]}`,
       "green",
       initializer
     );
     const result2 = gameBoard.updateBoxState(
-      `box-${classList[4]}`,
+      `${classList[4]}`,
       "green",
       initializer
     );
@@ -111,12 +118,12 @@ socket.on("selectLine", (className, id, initializer) => {
     return;
   } else {
     const result1 = gameBoard.updateBoxState(
-      `box-${classList[3]}`,
+      `${classList[3]}`,
       "red",
       initializer
     );
     const result2 = gameBoard.updateBoxState(
-      `box-${classList[4]}`,
+      `${classList[4]}`,
       "red",
       initializer
     );
