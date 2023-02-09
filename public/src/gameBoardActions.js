@@ -52,7 +52,7 @@ export const onLeaveRoom = (event) => {
     const router = document
       .getElementsByTagName("app-root")[0]
       .shadowRoot.querySelector("app-router");
-      
+
     router.render(`/`);
     //document.getElementsByTagName("app-root")[0].resetToHome();
   });
@@ -94,23 +94,37 @@ socket.on("selectLine", (className, id, initializer) => {
   const pattern = /^\w+$/;
 
   const classList = className.split(" ").filter((str) => pattern.test(str));
+  const colors = { 0: "pink", 1: "gray" };
 
-  console.log(classList);
-
-  if (initializer === playerIndex) {
+  // if user is only watching
+  if (playerIndex === -1) {
     const result1 = gameBoard.updateBoxState(
       `${classList[3]}`,
-      "green",
+      colors[initializer],
       initializer
     );
     const result2 = gameBoard.updateBoxState(
       `${classList[4]}`,
-      "green",
+      colors[initializer],
+      initializer
+    );
+    gameBoard.onChangePlayTurn(true);
+    return;
+  }
+
+  if (initializer === playerIndex) {
+    const result1 = gameBoard.updateBoxState(
+      `${classList[3]}`,
+      colors[0],
+      initializer
+    );
+    const result2 = gameBoard.updateBoxState(
+      `${classList[4]}`,
+      colors,
       initializer
     );
 
     if (!result1 && !result2) {
-      console.log(`other saved turn => ${playerIndex == 0 ? 1 : 0}`);
       socket.emit("set turn", playerIndex == 0 ? 1 : 0);
       gameBoard.onChangePlayTurn(false);
     }
@@ -119,17 +133,16 @@ socket.on("selectLine", (className, id, initializer) => {
   } else {
     const result1 = gameBoard.updateBoxState(
       `${classList[3]}`,
-      "red",
+      colors[1],
       initializer
     );
     const result2 = gameBoard.updateBoxState(
       `${classList[4]}`,
-      "red",
+      colors[1],
       initializer
     );
 
     if (!result1 && !result2) {
-      console.log("my turn");
       gameBoard.onChangePlayTurn(true);
     }
   }

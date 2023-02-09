@@ -69,6 +69,18 @@ export class GameBoard extends HTMLElement {
     }
   }
 
+  updateSavedBoxColors() {
+    const colors = { 0: "pink", 1: "gray" };
+
+    this.savedBoxes.forEach((box) => {
+      if (box[1].score >= 4) {
+        this.#_shadowRoot.querySelector(
+          `#box-${box[0]}`
+        ).style.backgroundColor = colors[box[1].owner];
+      }
+    });
+  }
+
   connectedCallback() {
     this.createBoard();
 
@@ -85,6 +97,12 @@ export class GameBoard extends HTMLElement {
       myEl.style.opacity = 100;
       myEl.disabled = true;
     });
+
+    console.log("playerIndex: ", this.playerIndex);
+    if (this.playerIndex === -1) {
+      console.log(this.playerScores, this.players);
+      this.updateSavedBoxColors();
+    }
   }
 
   createScoreTable() {
@@ -185,7 +203,8 @@ export class GameBoard extends HTMLElement {
 
     socket.emit("save boxes", this.name, Array.from(this.boxes));
     if (this.boxes.get(id).score >= 4) {
-      this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor = color;
+      this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor =
+        color;
       console.log(
         this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor
       );
