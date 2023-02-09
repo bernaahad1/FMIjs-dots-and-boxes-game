@@ -1,4 +1,5 @@
-import { Router } from './router';
+import { Router } from "./router";
+
 import { socket } from "./client_db.js";
 import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
@@ -79,8 +80,8 @@ export class GameBoard extends HTMLElement {
       .addEventListener("click", onLeaveRoom);
 
     //load clicked elements
-    this.clickedLines.forEach((cl) => {
-      const myEl = this.#_shadowRoot.querySelector(`#${cl}`)[0];
+    this.clickedLines.forEach((lineId) => {
+      const myEl = this.#_shadowRoot.querySelector(`#${lineId}`);
       myEl.style.opacity = 100;
       myEl.disabled = true;
     });
@@ -92,7 +93,6 @@ export class GameBoard extends HTMLElement {
 
   createBoard() {
     const gameRoom = this.#_shadowRoot.querySelector(".game-room");
-    // gameRoom.className = "game-room";
 
     const gameBoard = document.createElement("section");
     gameBoard.className = "game-board";
@@ -104,20 +104,22 @@ export class GameBoard extends HTMLElement {
       for (let j = 0; j < this.size; j++) {
         const box = document.createElement("div");
         box.className = "box";
-        box.id = `${i}${j}`;
+        box.id = `box-${i}${j}`;
 
         box.innerHTML += `<div class="dot top-left"></div>`;
 
         //Do not render top line if box is from last coll
         if (j < this.size - 1) {
-          box.innerHTML += `<button class="line horizontal top ${i - 1}${j} 
-          ${i}${j}"></button>`;
+          box.innerHTML += `<button class="line horizontal top ${
+            i - 1
+          }${j} ${i}${j}" id="line${i - 1}${j}-${i}${j}"></button>`;
         }
 
         //Do not render left line if box is from last row
         if (i < this.size - 1) {
-          box.innerHTML += `<button class="line vertical left ${i}${j - 1} 
-          ${i}${j}"></button>`;
+          box.innerHTML += `<button class="line vertical left ${i}${
+            j - 1
+          } ${i}${j}" id="line${i}${j - 1}-${i}${j}"></button>`;
         }
 
         section.appendChild(box);
@@ -182,7 +184,10 @@ export class GameBoard extends HTMLElement {
     console.log(this.boxes);
     socket.emit("save boxes", this.name, Array.from(this.boxes));
     if (this.boxes.get(id).score >= 4) {
-      document.getElementById(`${id}`).style.backgroundColor = color;
+      this.#_shadowRoot.querySelector(`#${id}`).style.backgroundColor = color;
+      console.log(
+        this.#_shadowRoot.querySelector(`#${id}`).style.backgroundColor
+      );
       this.boxes.get(id).owner = playerIndex;
       this.onScoreUpdate(playerIndex);
       return true;
@@ -193,25 +198,38 @@ export class GameBoard extends HTMLElement {
     return false;
   }
 
+  updateLineState(id) {
+    const line = this.#_shadowRoot.querySelector(`#${id}`);
+
+    line.style.opacity = 100;
+    line.disabled = true;
+  }
+
   onLineClick(event) {
-    socket.emit("selectLine", event.target.className, this.playerIndex);
+    console.log(event);
+    socket.emit(
+      "selectLine",
+      event.target.className,
+      event.target.id,
+      this.playerIndex
+    );
   }
 
   onScoreUpdate(index) {
     this.playerScores[index] += 1;
-    const myEl = document.getElementsByClassName(`player-${index}`)[0];
+    const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
   }
 
   onChangePlayTurn(myTurn) {
-    const disableDiv = document.getElementsByClassName("overlay-disable")[0];
+    const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
 
     if (myTurn && this.playerIndex !== -1) {
-      document.getElementsByClassName("game-state-turn")[0].innerHTML =
+      this.#_shadowRoot.querySelector(".game-state-turn").innerHTML =
         "Your turn";
       disableDiv.className = "overlay-disable hidden";
     } else if (this.playerIndex !== -1) {
-      document.getElementsByClassName("game-state-turn")[0].innerHTML =
+      this.#_shadowRoot.querySelector(".game-state-turn").innerHTML =
         "Waiting for opponent to play";
       disableDiv.className = "overlay-disable";
     }

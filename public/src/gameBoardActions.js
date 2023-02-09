@@ -1,12 +1,18 @@
 import { GameBoard } from "./gameBoard.js";
 
-import { socket, playerIndex, setPlayerIndex, currentRoom } from "./client_db.js";
+import {
+  socket,
+  playerIndex,
+  setPlayerIndex,
+  currentRoom,
+} from "./client_db.js";
 
 let gameBoard = undefined;
 
 export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
   console.log(`updated currentRoom to: ${currentRoom}`);
+  
   socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
     setPlayerIndex(index);
@@ -73,20 +79,25 @@ socket.on("user left", (room) => {
 });
 
 //selecting lines
-socket.on("selectLine", (className, initializer) => {
-  const myEl = document.getElementsByClassName(className)[0];
-  console.log(`Start: ${initializer}; Element to update: ${myEl}`);
-  myEl.style.opacity = 100;
-  myEl.disabled = true;
+socket.on("selectLine", (className, id, initializer) => {
+  gameBoard.updateLineState(id);
+
+  console.log(
+    `Start: ${initializer}; Element to update: ${className} , ${gameBoard}`
+  );
+
+  const pattern = /^\w+$/;
+
+  const classList = className.split(" ").filter((str) => pattern.test(str));
 
   if (initializer === playerIndex) {
     const result1 = gameBoard.updateBoxState(
-      myEl.classList[3],
+      `box-${classList[3]}`,
       "green",
       initializer
     );
     const result2 = gameBoard.updateBoxState(
-      myEl.classList[4],
+      `box-${classList[4]}`,
       "green",
       initializer
     );
@@ -100,12 +111,12 @@ socket.on("selectLine", (className, initializer) => {
     return;
   } else {
     const result1 = gameBoard.updateBoxState(
-      myEl.classList[3],
+      `box-${classList[3]}`,
       "red",
       initializer
     );
     const result2 = gameBoard.updateBoxState(
-      myEl.classList[4],
+      `box-${classList[4]}`,
       "red",
       initializer
     );

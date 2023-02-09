@@ -1,19 +1,19 @@
 const express = require("express");
 const path = require("path");
 const http = require("http");
-const socketio = require("socket.io")
+const socketio = require("socket.io");
 const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json());
 
 const server = http.createServer(app);
-const io = socketio(server,{
-    cors: {
-      origin: "http://localhost:8080",
-      methods: ["GET", "POST"]
-    }
-  });
+const io = socketio(server, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"],
+  },
+});
 
 //app.use(express.static("public/dist"));
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
@@ -89,7 +89,7 @@ io.on("connection", (socket) => {
 
   socket.on("create room", (roomName, gridSize, playerNum) => {
     if (rooms.get(roomName)) {
-      return ;
+      return;
     }
 
     const room = {
@@ -117,14 +117,14 @@ io.on("connection", (socket) => {
     io.emit("new room", rooms);
   });
 
-  socket.on("selectLine", (className, initializer) => {
+  socket.on("selectLine", (className, id, initializer) => {
     console.log(
       `Select from player ${playerIndex} in room ${currentRoom} with target ${className}`
     );
 
-    rooms.get(currentRoom).clickedLines.push(className);
+    rooms.get(currentRoom).clickedLines.push(id);
 
-    io.to(currentRoom).emit("selectLine", className, playerIndex);
+    io.to(currentRoom).emit("selectLine", className, id, playerIndex);
   });
 
   socket.on("save boxes", (roomName, boxes) => {
