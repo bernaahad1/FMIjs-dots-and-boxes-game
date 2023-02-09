@@ -1,4 +1,4 @@
-*,
+export const style = `*,
 ::after,
 ::before {
   box-sizing: border-box;
@@ -13,6 +13,12 @@ main {
   /* padding-top: 10%; */
   background-color: #fff;
 }
+
+a {
+  text-align: center;
+  text-decoration: none;
+}
+
 .game-board {
   width: 80%;
   margin: auto;
@@ -140,3 +146,103 @@ h1.my-score {
   padding: 40px 10px 0px 10px;
   justify-content: center;
 }
+.home-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
+.home-row-hidden{
+    display: none;
+    flex-direction: row;
+    justify-content: space-around;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.home-column{
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    row-gap: 15px;
+}
+
+.create-room{
+    font-size: 30px;
+    max-width: 240px;
+    border-radius: 20px;
+    color: black;
+    background-color: #ffffff;
+    border-color: #cbeefd;
+    border-bottom-width: thick;
+    border-right-width: thick;
+    border-style: solid;
+    margin: 0px auto;
+    padding: 5px 20px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.create-room:hover{
+    background-color: #cbeefd;
+}
+
+.home-column input {
+    font-size: 24px;
+    border-radius: 10px;
+    border: none;
+    background-color: #cbeefd;
+    padding: 5px 10px;
+}
+
+.home-column h2{
+    font-size: 50px;
+}
+
+.title{
+    display: flex;
+    justify-content: center;
+}
+
+.title img{
+    max-height: 110px;
+}
+
+.ChooseRoom {
+    font-size: 30px;
+    max-width: 240px;
+    border-radius: 20px;
+    color: black;
+    background-color: #ffffff;
+    border-style: solid;
+    margin: 0px auto;
+    padding: 5px 20px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-color: #cbeefd;
+    min-width: 280px;
+}
+.ChooseRoom:hover{
+    background-color: #cbeefd;
+}
+
+.ChooseRoomFull {
+    font-size: 30px;
+    max-width: 240px;
+    border-radius: 20px;
+    color: black;
+    background-color: #e997ab;
+    border-style: solid;
+    margin: 0px auto;
+    padding: 5px 20px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border: none;
+    min-width: 280px;
+}
+.ChooseRoomFull:hover{
+    background-color: #ffffff;
+    border-color: #cbeefd;
+}`;
