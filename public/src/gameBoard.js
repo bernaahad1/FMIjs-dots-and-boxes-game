@@ -3,6 +3,8 @@ import { Router } from "./router";
 import { socket } from "./client_db.js";
 import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
+import { ModalComponent } from "./modalComponent.js";
+import { AlertComponent } from "./alert.js";
 
 import img from "./assets/logo_FMIJS.png";
 
@@ -101,6 +103,7 @@ export class GameBoard extends HTMLElement {
     console.log("playerIndex: ", this.playerIndex);
     if (this.playerIndex === -1) {
       console.log(this.playerScores, this.players);
+
       this.updateSavedBoxColors();
     }
   }
@@ -239,6 +242,32 @@ export class GameBoard extends HTMLElement {
     this.playerScores[index] += 1;
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
+  }
+
+  chechWinner() {}
+
+  userLeft() {
+    const modal = document.createElement("modal-component");
+    modal.innerHTML = `<alert-component title="Game Over!" description="The other player left the game!\nYou are the winner!"/>`;
+    this.#_shadowRoot.appendChild(modal);
+  }
+
+  showWinner(winnerId) {
+    let title = "";
+
+    let description = "";
+
+    if (this.playerIndex === winnerId) {
+      title = "Congratulations!";
+      description = "You are the winner!";
+    } else {
+      title = "Game Over!";
+      description = "You can be winner next time!";
+    }
+
+    const modal = document.createElement("modal-component");
+    modal.innerHTML = `<alert-component title="${title}" description="${description}"/>`;
+    this.#_shadowRoot.appendChild(modal);
   }
 
   onChangePlayTurn(myTurn) {
