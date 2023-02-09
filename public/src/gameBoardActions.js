@@ -24,7 +24,7 @@ export const onChooseRoom = (event) => {
     console.log(gameBoard);
 
     const router = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router");
-    router.render(`/${currentRoom}`,gameBoard);
+    router.render(`/room/${currentRoom}`,gameBoard);
 
     //document.getElementsByTagName("app-root")[0].renderGameRoom(gameBoard);
 
@@ -41,13 +41,19 @@ export const onLeaveRoom = (event) => {
     // playerIndex = -1;
     setPlayerIndex(-1);
 
-    document.getElementsByTagName("app-root")[0].resetToHome();
+    const router = document.getElementsByTagName("app-root")[0].shadowRoot.querySelector("app-router");
+    router.render(`/`);
+    //document.getElementsByTagName("app-root")[0].resetToHome();
   });
 };
 
-// socket.on("new user", (users) => {
-//   console.log("users change");
-// });
+export const onLeavePage = (event) => {
+  socket.emit("leave room", () => {
+    console.log(`Player ${playerIndex} has disconnected`);
+    gameBoard = undefined;
+    setPlayerIndex(-1);
+  });
+};
 
 socket.on("user left", (room) => {
   if (room !== gameBoard.name) {

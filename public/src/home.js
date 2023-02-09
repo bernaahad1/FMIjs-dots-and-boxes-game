@@ -113,6 +113,9 @@ export class Home extends HTMLElement {
 
   updateRoomButton = (room) => {
     const button = this.#_shadowRoot.querySelector(`#${room.name}`);
+    if(!button){
+      return; // if the UI is not loaded
+    }
     const numPlayers = room.players.length;
     let connected = room.connected;
     const state = numPlayers === connected ? "playing" : "pending";
