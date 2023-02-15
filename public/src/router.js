@@ -10,6 +10,7 @@ export class Router extends HTMLElement {
   routes = {
     "/": Home,
     "/room/:roomName": GameBoard,
+    "/roomReplay/:roomName": GameBoard,
   };
 
   constructor() {
@@ -28,7 +29,7 @@ export class Router extends HTMLElement {
       break;
     }
 
-    if (this.#currentPath !== null && this.#currentPath.match(/^\/room\//)) {
+    if (this.#currentPath !== null && this.#currentPath.match(/^\/room\/|^\/roomReplay\//)) {
       onLeavePage();
     }
 
