@@ -17,7 +17,7 @@ export const onReplayGame = (event) => {
   console.log(`${currentRoom} is being replayed from player ${playerIndex}`);
 
     socket.emit("fetchCurrentRoomState", currentRoom, ((r) => {
-        console.log(r)
+        //console.log(r)
 
     gameBoard = new GameBoard(
       r.name,
@@ -28,7 +28,7 @@ export const onReplayGame = (event) => {
       '',
       []
     );
-    console.log(gameBoard);
+    //console.log(gameBoard);
 
     const router = document
       .getElementsByTagName("app-root")[0]
@@ -46,7 +46,7 @@ const clickNextLine = async(r, len) => {
       const from = r.clickedFrom[i];
       const cName = r.linesClassName[i];
       
-      console.log(`clicked ${line} from ${from} with className ${cName}`);
+      //console.log(`clicked ${line} from ${from} with className ${cName}`);
       gameBoard.updateLineState(line);
       seclectedLineUpdateBox(cName, from, gameBoard);
       i++;

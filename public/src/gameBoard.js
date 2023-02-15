@@ -167,7 +167,10 @@ export class GameBoard extends HTMLElement {
       opponentIndex = -1;
       gameState = "You can only watch";
     }
-
+    if (this.plTurn === -2) {
+      gameState = "You are watching replay";
+    }
+    
     //render header
     gameRoom.innerHTML += `<div class="room title header">
       <button class="create-room exit-room">Exit game</button>

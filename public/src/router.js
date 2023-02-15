@@ -29,7 +29,8 @@ export class Router extends HTMLElement {
       break;
     }
 
-    if (this.#currentPath !== null && this.#currentPath.match(/^\/room\/|^\/roomReplay\//)) {
+    if (this.#currentPath !== null && this.#currentPath.match(/^\/room\/|^\/roomReplay\//) && 
+        (this.#currentPath.match(/^\/room\//) && !path.match(/^\/roomReplay\//))) {
       onLeavePage();
     }
 

@@ -116,6 +116,8 @@ export const seclectedLineUpdateBox = (className, initializer, gB = gameBoard) =
 
   const classList = className.split(" ").filter((str) => pattern.test(str));
   const colors = { 0: "pink", 1: "gray" };
+
+  console.log(`clicked line from ${initializer} and current player ${playerIndex}`);
   
   // if user is only watching
   if (playerIndex === -1) {
