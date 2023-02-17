@@ -11,7 +11,7 @@ main {
   width: 100%;
   margin: auto;
   /* padding-top: 10%; */
-  background-color: #fff;
+  background-color: #F6F5F0;
 }
 
 a {
@@ -134,7 +134,7 @@ h1.my-score {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 200;
 }
 
 .overlay-disable.hidden {
@@ -183,6 +183,10 @@ h1.my-score {
     padding: 5px 20px;
     transition-duration: 0.4s;
     cursor: pointer;
+}
+
+.exit-room{
+  margin:0;
 }
 
 .create-room:hover{
