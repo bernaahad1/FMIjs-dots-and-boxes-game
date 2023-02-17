@@ -20,7 +20,7 @@ server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Handle socket connection
 let users = []; //{username, ownedGames = [], id}
-const rooms = new Map(); //{owner, name, gridSize, players:[,], plTurn:1, savedBoxes:[]}
+const rooms = new Map(); //{owner, name, gridSize, players:[,], plTurn:1, savedBoxes:[], gameWinnerId}
 
 io.on("connection", (socket) => {
   console.log(`New WS Connection. Connection id: ${socket.id}`);
@@ -35,6 +35,25 @@ io.on("connection", (socket) => {
       rooms.get(room).players[playerIndex] = null;
       rooms.get(room).connected--;
       io.emit("update room", rooms.get(room));
+
+      // Todo fix but works
+      let room3 = rooms.get(room);
+
+      if (
+        room3.players &&
+        room3.players[0] === null &&
+        room3.players[1] === null
+      ) {
+        // for (let i = 0; i < playerNum; i++) {
+        //   room.players.push(null);
+        // }
+        room3.savedBoxes = "";
+
+        room3.gameWinnerId = -1;
+        room3.clickedLines = [];
+        room3.linesClassName = [];
+        room3.clickedFrom = [];
+      }
     }
     socket.leave(room);
     playerIndex = -1;
@@ -88,6 +107,7 @@ io.on("connection", (socket) => {
     clearPlayerGame();
 
     cb();
+    // socket.leave(roomName);
   });
 
   socket.on("create room", (roomName, gridSize, playerNum) => {
@@ -106,6 +126,8 @@ io.on("connection", (socket) => {
       clickedLines: [],
       linesClassName: [],
       clickedFrom: [],
+      // -1 no one 0 and 1 are ids and 2 means that both are winners
+      gameWinnerId: -1,
     };
 
     for (let i = 0; i < playerNum; i++) {
@@ -117,7 +139,7 @@ io.on("connection", (socket) => {
 
   socket.on("fetchCurrentRoomState", (roomName, cb) => {
     cb(rooms.get(roomName));
-  })
+  });
 
   socket.on("delete room", () => {
     //you can delete it only if you are the user
@@ -150,5 +172,11 @@ io.on("connection", (socket) => {
     console.log("user left server", roomName, playerLeftId);
 
     io.to(roomName).emit("user left", roomName, playerLeftId);
+  });
+
+  socket.on("winner", (roomName, winnerId) => {
+    console.log("Winner is", roomName, winnerId);
+
+    rooms.get(currentRoom).gameWinnerId = winnerId;
   });
 });

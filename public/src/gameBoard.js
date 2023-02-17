@@ -36,6 +36,7 @@ const template = createHomeTemplate();
 
 export class GameBoard extends HTMLElement {
   #_shadowRoot = null;
+  winnerId = undefined;
 
   constructor(
     name,
@@ -80,14 +81,14 @@ export class GameBoard extends HTMLElement {
       if (box[1].score >= 4) {
         this.#_shadowRoot.querySelector(
           `#box-${box[0]}`
-        ).style.backgroundColor = colors[box[1].owner === this.playerIndex ? 0 : 1];
+        ).style.backgroundColor = colors[box[1].owner === 0 ? 0 : 1];
       }
     });
   }
 
   connectedCallback() {
     this.createBoard();
-    
+
     const lines = [...this.#_shadowRoot.querySelectorAll("button.line")];
     lines.forEach((el) => el.addEventListener("click", this.onLineClick));
 
@@ -95,7 +96,9 @@ export class GameBoard extends HTMLElement {
       .querySelector(".exit-room")
       .addEventListener("click", onLeaveRoom);
 
-    this.#_shadowRoot.querySelector(".replay-game-button").addEventListener('click',onReplayGame);
+    this.#_shadowRoot
+      .querySelector(".replay-game-button")
+      .addEventListener("click", onReplayGame);
     this.#_shadowRoot.querySelector(".replay-game-button").value = this.name;
 
     //load clicked elements
@@ -108,10 +111,8 @@ export class GameBoard extends HTMLElement {
     console.log("playerIndex: ", this.playerIndex);
     if (this.playerIndex === -1) {
       console.log(this.playerScores, this.players);
-
-      
     }
-    if(this.savedBoxes !== ''){
+    if (this.savedBoxes !== "") {
       this.updateSavedBoxColors();
     }
   }
@@ -170,7 +171,7 @@ export class GameBoard extends HTMLElement {
     if (this.plTurn === -2) {
       gameState = "You are watching replay";
     }
-    
+
     //render header
     gameRoom.innerHTML += `<div class="room title header">
       <button class="create-room exit-room">Exit game</button>
@@ -216,7 +217,7 @@ export class GameBoard extends HTMLElement {
     console.log(this.boxes);
 
     //if(this.plTurn !== -2) {//-2 means replay
-      socket.emit("save boxes", this.name, Array.from(this.boxes));
+    socket.emit("save boxes", this.name, Array.from(this.boxes));
     //}
 
     if (this.boxes.get(id).score >= 4) {
@@ -253,8 +254,6 @@ export class GameBoard extends HTMLElement {
     );
   }
 
-  
-
   onScoreUpdate(index) {
     this.playerScores[index] += 1;
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
@@ -270,7 +269,9 @@ export class GameBoard extends HTMLElement {
       return;
     }
 
-    const opponentIndex = this.playerIndex === 0 ? 1 : 0;
+    const opponentIndex = parseInt(this.playerIndex) === 0 ? 1 : 0;
+
+
     const description =
       this.playerScores[opponentIndex] < this.playerScores[this.playerIndex]
         ? "You are the winner!"
@@ -279,18 +280,38 @@ export class GameBoard extends HTMLElement {
         ? "Both are the winners"
         : "You lost!";
 
+    this.winnerId =
+      this.playerScores[opponentIndex] < this.playerScores[this.playerIndex]
+        ? this.playerIndex
+        : this.playerScores[opponentIndex] ===
+          this.playerScores[this.playerIndex]
+        ? 2
+        : opponentIndex;
+
     const modal = document.createElement("modal-component");
     modal.innerHTML = `<alert-component title="End Game!" description="${description}"/>`;
     this.#_shadowRoot.appendChild(modal);
 
-    // disable playing when someone lefts
+    // disable playing when game ends
     const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
     disableDiv.className = "overlay-disable";
+
+    // socket.emit("winner", this.winnerId);
   }
 
   userLeft(playerLeftId) {
     console.log(this.playerIndex);
 
+    if (this.winnerId >= 0 && this.playerIndex >= 0) {
+      const modal = document.createElement("modal-component");
+      modal.innerHTML = `<alert-component title="Your opponent left!"/>`;
+      this.#_shadowRoot.appendChild(modal);
+
+      const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
+      disableDiv.className = "overlay-disable";
+      return;
+    }
+    // TODO update players
     if (this.playerIndex === -1) {
       console.log(this.playerIndex);
 
