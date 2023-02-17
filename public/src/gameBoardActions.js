@@ -9,6 +9,8 @@ import {
 
 let gameBoard = undefined;
 
+// TODO reset the game when someone leaves
+
 export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
   console.log(`updated currentRoom to: ${currentRoom}`);
@@ -27,7 +29,6 @@ export const onChooseRoom = (event) => {
       r.savedBoxes,
       r.clickedLines
     );
-    console.log(gameBoard);
 
     const router = document
       .getElementsByTagName("app-root")[0]
@@ -43,8 +44,12 @@ export const onChooseRoom = (event) => {
 };
 
 export const onLeaveRoom = (event) => {
+  socket.emit("user left", gameBoard.name, playerIndex);
+
+  // console.log("emit leave");
+
   socket.emit("leave room", () => {
-    console.log(`Player ${playerIndex} has disconnected`);
+    console.log(`Player ${playerIndex} has disconnected onLeaveRoom`);
     gameBoard = undefined;
     // playerIndex = -1;
     setPlayerIndex(-1);
@@ -58,28 +63,36 @@ export const onLeaveRoom = (event) => {
   });
 };
 
-export const onLeavePage = (event) => {
-  socket.emit("leave room", () => {
-    console.log(`Player ${playerIndex} has disconnected`);
-    gameBoard = undefined;
-    setPlayerIndex(-1);
-  });
-};
+// export const onLeavePage = (event) => {
+//   socket.emit("leave room", () => {
+//     console.log(`Player ${playerIndex} has disconnected onLeavePage`);
+//     gameBoard = undefined;
+//     setPlayerIndex(-1);
+//   });
+// };
 
-socket.on("user left", (room) => {
-  if (room !== gameBoard.name) {
+socket.on("user left", (room, playerLeftId) => {
+  console.log("alooo, ", room, playerLeftId);
+  if (
+    room !== gameBoard.name ||
+    playerLeftId < 0 ||
+    playerIndex === playerLeftId
+  ) {
     return;
   }
-  const gameRoom = document.getElementsByClassName("game-room")[0];
-  document.getElementsByClassName("main-content")[0].removeChild(gameRoom);
 
-  //just for now
+  console.log("playerLeftId: ", playerLeftId);
+  gameBoard.userLeft(playerLeftId);
+
   gameBoard = new GameBoard(
     gameBoard.name,
     gameBoard.size - 1,
     gameBoard.players,
     playerIndex
   );
+
+  console.log(gameBoard.players);
+
   console.log("You win");
 });
 
@@ -91,8 +104,8 @@ socket.on("selectLine", (className, id, initializer) => {
     `Start: ${initializer}; Element to update: ${className} , ${gameBoard}`
   );
 
-  const {result1, result2} = seclectedLineUpdateBox(className, initializer);
-  if(playerIndex === -1){
+  const { result1, result2 } = seclectedLineUpdateBox(className, initializer);
+  if (playerIndex === -1) {
     gameBoard.onChangePlayTurn(true);
     return;
   }
@@ -107,30 +120,27 @@ socket.on("selectLine", (className, id, initializer) => {
     if (!result1 && !result2) {
       gameBoard.onChangePlayTurn(true);
     }
-  }    
-
+  }
 });
 
-export const seclectedLineUpdateBox = (className, initializer, gB = gameBoard) =>{
+export const seclectedLineUpdateBox = (
+  className,
+  initializer,
+  gB = gameBoard
+) => {
   const pattern = /^\w+$/;
 
   const classList = className.split(" ").filter((str) => pattern.test(str));
   const colors = { 0: "pink", 1: "gray" };
 
-  console.log(`clicked line from ${initializer} and current player ${playerIndex}`);
-  
+  console.log(
+    `clicked line from ${initializer} and current player ${playerIndex}`
+  );
+
   // if user is only watching
   if (playerIndex === -1) {
-    gB.updateBoxState(
-      `${classList[3]}`,
-      colors[initializer],
-      initializer
-    );
-    gB.updateBoxState(
-      `${classList[4]}`,
-      colors[initializer],
-      initializer
-    );
+    gB.updateBoxState(`${classList[3]}`, colors[initializer], initializer);
+    gB.updateBoxState(`${classList[4]}`, colors[initializer], initializer);
     return;
   }
 
@@ -145,5 +155,5 @@ export const seclectedLineUpdateBox = (className, initializer, gB = gameBoard) =
     initializer
   );
 
-  return {result1, result2};
-}
+  return { result1, result2 };
+};

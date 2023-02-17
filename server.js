@@ -83,7 +83,10 @@ io.on("connection", (socket) => {
 
   socket.on("leave room", (cb) => {
     //you can leave the room
+    console.log("leave room", playerIndex, currentRoom);
+    console.log("äloooo");
     clearPlayerGame();
+
     cb();
   });
 
@@ -138,11 +141,14 @@ io.on("connection", (socket) => {
   socket.on("save boxes", (roomName, boxes) => {
     rooms.get(roomName).savedBoxes = boxes;
   });
+
   socket.on("set turn", (turn) => {
     rooms.get(currentRoom).plTurn = turn;
   });
 
-  socket.on("user left", (room) => {
-    io.to(room).emit("user left");
+  socket.on("user left", (roomName, playerLeftId) => {
+    console.log("user left server", roomName, playerLeftId);
+
+    io.to(roomName).emit("user left", roomName, playerLeftId);
   });
 });

@@ -227,6 +227,7 @@ export class GameBoard extends HTMLElement {
       );
       this.boxes.get(id).owner = playerIndex;
       this.onScoreUpdate(playerIndex);
+      this.chechWinner();
       return true;
       // document.getElementById(
       //   `${id}`
@@ -252,23 +253,63 @@ export class GameBoard extends HTMLElement {
     );
   }
 
+  
+
   onScoreUpdate(index) {
     this.playerScores[index] += 1;
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
   }
 
-  chechWinner() {}
+  chechWinner() {
+    if (
+      this.playerScores.length !== 2 ||
+      this.playerScores[0] + this.playerScores[1] <
+        (this.size - 1) * (this.size - 1)
+    ) {
+      return;
+    }
 
-  userLeft() {
+    const opponentIndex = this.playerIndex === 0 ? 1 : 0;
+    const description =
+      this.playerScores[opponentIndex] < this.playerScores[this.playerIndex]
+        ? "You are the winner!"
+        : this.playerScores[opponentIndex] ===
+          this.playerScores[this.playerIndex]
+        ? "Both are the winners"
+        : "You lost!";
+
     const modal = document.createElement("modal-component");
-    modal.innerHTML = `<alert-component title="Game Over!" description="The other player left the game!\nYou are the winner!"/>`;
+    modal.innerHTML = `<alert-component title="End Game!" description="${description}"/>`;
     this.#_shadowRoot.appendChild(modal);
+
+    // disable playing when someone lefts
+    const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
+    disableDiv.className = "overlay-disable";
+  }
+
+  userLeft(playerLeftId) {
+    console.log(this.playerIndex);
+
+    if (this.playerIndex === -1) {
+      console.log(this.playerIndex);
+
+      const modal = document.createElement("modal-component");
+      modal.innerHTML = `<alert-component title="Game Over!" description="One of the players left the game!"/>`;
+      this.#_shadowRoot.appendChild(modal);
+    } else {
+      const modal = document.createElement("modal-component");
+      modal.innerHTML = `<alert-component title="Game Over!" description="The other player left the game!\nYou are the winner!"/>`;
+      this.#_shadowRoot.appendChild(modal);
+    }
+
+    // disable playing when someone lefts
+    const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
+    disableDiv.className = "overlay-disable";
   }
 
   showWinner(winnerId) {
     let title = "";
-
     let description = "";
 
     if (this.playerIndex === winnerId) {
@@ -280,8 +321,12 @@ export class GameBoard extends HTMLElement {
     }
 
     const modal = document.createElement("modal-component");
-    modal.innerHTML = `<alert-component title="${title}" description="${description}"/>`;
+    modal.innerHTML = `<alert-component title="${title}" description="${description}" />`;
     this.#_shadowRoot.appendChild(modal);
+
+    // disable playing the game when someone lefts
+    const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
+    disableDiv.className = "overlay-disable";
   }
 
   onChangePlayTurn(myTurn) {
