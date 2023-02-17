@@ -11,6 +11,7 @@ function createHomeTemplate() {
           display: flex;
           justify-content: center;
           align-items: center;
+          z-index: 300;
         }
 
         .modal-content {
@@ -34,6 +35,7 @@ function createHomeTemplate() {
           cursor: pointer;
           background-color: transparent;
           border-color: transparent;
+          z-index: 301;
         }
 
         .content {
@@ -70,13 +72,13 @@ class ModalComponent extends HTMLElement {
   connectedCallback() {
     this.#_shadowRoot
       .querySelector(".modal-overlay")
-      .addEventListener("click", this.closeModal.bind(this));
+      .addEventListener("click", () => this.closeModal());
   }
 
   disconnectedCallback() {
     this.#_shadowRoot
       .querySelector(".modal-overlay")
-      .removeEventListener("click", this.closeModal.bind(this));
+      .removeEventListener("click", () => this.closeModal());
   }
 
   closeModal() {

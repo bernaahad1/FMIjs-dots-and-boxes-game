@@ -1,7 +1,7 @@
 import { pathToRegexp } from "path-to-regexp";
 import { Home } from "./home.js";
 import { GameBoard } from "./gameBoard.js";
-import { onLeavePage } from "./gameBoardActions.js";
+// import { onLeavePage } from "./gameBoardActions.js";
 
 export class Router extends HTMLElement {
   #_shadowRoot = null;
@@ -29,10 +29,11 @@ export class Router extends HTMLElement {
       break;
     }
 
-    if (this.#currentPath !== null && this.#currentPath.match(/^\/room\/|^\/roomReplay\//) && 
-        (this.#currentPath.match(/^\/room\//) && !path.match(/^\/roomReplay\//))) {
-      onLeavePage();
-    }
+    // Dont now why but not needed
+    // if (this.#currentPath !== null && this.#currentPath.match(/^\/room\/|^\/roomReplay\//) &&
+    //     (this.#currentPath.match(/^\/room\//) && !path.match(/^\/roomReplay\//))) {
+    //   // onLeavePage();
+    // }
 
     if (!componentRoute) {
       console.error("Route not found!");
@@ -46,7 +47,7 @@ export class Router extends HTMLElement {
     if (instance === true) {
       instance = new componentRoute();
     }
-    
+
     if (this.#_shadowRoot.children[0]) {
       this.#_shadowRoot.removeChild(this.#_shadowRoot.children[0]);
     }

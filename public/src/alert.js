@@ -88,6 +88,18 @@ class AlertComponent extends HTMLElement {
         break;
     }
   }
+
+  connectedCallback() {
+    this._button.addEventListener("click", () => this.closeModal());
+  }
+
+  disconnectedCallback() {
+    this._button.removeEventListener("click", () => this.closeModal());
+  }
+
+  closeModal() {
+    this.remove();
+  }
 }
 
 customElements.define("alert-component", AlertComponent);
