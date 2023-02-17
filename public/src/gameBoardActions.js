@@ -91,59 +91,59 @@ socket.on("selectLine", (className, id, initializer) => {
     `Start: ${initializer}; Element to update: ${className} , ${gameBoard}`
   );
 
-  const pattern = /^\w+$/;
-
-  const classList = className.split(" ").filter((str) => pattern.test(str));
-  const colors = { 0: "pink", 1: "gray" };
-
-  // if user is only watching
-  if (playerIndex === -1) {
-    const result1 = gameBoard.updateBoxState(
-      `${classList[3]}`,
-      colors[initializer],
-      initializer
-    );
-    const result2 = gameBoard.updateBoxState(
-      `${classList[4]}`,
-      colors[initializer],
-      initializer
-    );
+  const {result1, result2} = seclectedLineUpdateBox(className, initializer);
+  if(playerIndex === -1){
     gameBoard.onChangePlayTurn(true);
     return;
   }
 
   if (initializer === playerIndex) {
-    const result1 = gameBoard.updateBoxState(
-      `${classList[3]}`,
-      colors[0],
-      initializer
-    );
-    const result2 = gameBoard.updateBoxState(
-      `${classList[4]}`,
-      colors,
-      initializer
-    );
-
     if (!result1 && !result2) {
       socket.emit("set turn", playerIndex == 0 ? 1 : 0);
       gameBoard.onChangePlayTurn(false);
     }
-
     return;
   } else {
-    const result1 = gameBoard.updateBoxState(
-      `${classList[3]}`,
-      colors[1],
-      initializer
-    );
-    const result2 = gameBoard.updateBoxState(
-      `${classList[4]}`,
-      colors[1],
-      initializer
-    );
-
     if (!result1 && !result2) {
       gameBoard.onChangePlayTurn(true);
     }
-  }
+  }    
+
 });
+
+export const seclectedLineUpdateBox = (className, initializer, gB = gameBoard) =>{
+  const pattern = /^\w+$/;
+
+  const classList = className.split(" ").filter((str) => pattern.test(str));
+  const colors = { 0: "pink", 1: "gray" };
+
+  console.log(`clicked line from ${initializer} and current player ${playerIndex}`);
+  
+  // if user is only watching
+  if (playerIndex === -1) {
+    gB.updateBoxState(
+      `${classList[3]}`,
+      colors[initializer],
+      initializer
+    );
+    gB.updateBoxState(
+      `${classList[4]}`,
+      colors[initializer],
+      initializer
+    );
+    return;
+  }
+
+  const result1 = gB.updateBoxState(
+    `${classList[3]}`,
+    colors[initializer === playerIndex ? 0 : 1],
+    initializer
+  );
+  const result2 = gB.updateBoxState(
+    `${classList[4]}`,
+    colors[initializer === playerIndex ? 0 : 1],
+    initializer
+  );
+
+  return {result1, result2};
+}

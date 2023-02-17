@@ -101,6 +101,8 @@ io.on("connection", (socket) => {
       plTurn: 0,
       connected: 0,
       clickedLines: [],
+      linesClassName: [],
+      clickedFrom: [],
     };
 
     for (let i = 0; i < playerNum; i++) {
@@ -109,6 +111,10 @@ io.on("connection", (socket) => {
     rooms.set(roomName, room);
     io.emit("new room", Array.from(rooms));
   });
+
+  socket.on("fetchCurrentRoomState", (roomName, cb) => {
+    cb(rooms.get(roomName));
+  })
 
   socket.on("delete room", () => {
     //you can delete it only if you are the user
@@ -123,6 +129,8 @@ io.on("connection", (socket) => {
     );
 
     rooms.get(currentRoom).clickedLines.push(id);
+    rooms.get(currentRoom).clickedFrom.push(playerIndex);
+    rooms.get(currentRoom).linesClassName.push(className);
 
     io.to(currentRoom).emit("selectLine", className, id, playerIndex);
   });

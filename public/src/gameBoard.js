@@ -5,6 +5,7 @@ import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
 import { ModalComponent } from "./modalComponent.js";
 import { AlertComponent } from "./alert.js";
+import { onReplayGame } from "./gameBoardReplay";
 
 import img from "./assets/logo_FMIJS.png";
 
@@ -23,6 +24,7 @@ function createHomeTemplate() {
     <style>${style}</style>
         <section class="game-room">
     </section>
+    <button class="replay-game-button">Click for replay (I am going to be shown at the end of the game!)<button/>
   `;
 
   const templateElement = document.createElement("template");
@@ -78,20 +80,23 @@ export class GameBoard extends HTMLElement {
       if (box[1].score >= 4) {
         this.#_shadowRoot.querySelector(
           `#box-${box[0]}`
-        ).style.backgroundColor = colors[box[1].owner];
+        ).style.backgroundColor = colors[box[1].owner === this.playerIndex ? 0 : 1];
       }
     });
   }
 
   connectedCallback() {
     this.createBoard();
-
+    
     const lines = [...this.#_shadowRoot.querySelectorAll("button.line")];
     lines.forEach((el) => el.addEventListener("click", this.onLineClick));
 
     this.#_shadowRoot
       .querySelector(".exit-room")
       .addEventListener("click", onLeaveRoom);
+
+    this.#_shadowRoot.querySelector(".replay-game-button").addEventListener('click',onReplayGame);
+    this.#_shadowRoot.querySelector(".replay-game-button").value = this.name;
 
     //load clicked elements
     this.clickedLines.forEach((lineId) => {
@@ -104,6 +109,9 @@ export class GameBoard extends HTMLElement {
     if (this.playerIndex === -1) {
       console.log(this.playerScores, this.players);
 
+      
+    }
+    if(this.savedBoxes !== ''){
       this.updateSavedBoxColors();
     }
   }
@@ -159,7 +167,10 @@ export class GameBoard extends HTMLElement {
       opponentIndex = -1;
       gameState = "You can only watch";
     }
-
+    if (this.plTurn === -2) {
+      gameState = "You are watching replay";
+    }
+    
     //render header
     gameRoom.innerHTML += `<div class="room title header">
       <button class="create-room exit-room">Exit game</button>
@@ -204,7 +215,10 @@ export class GameBoard extends HTMLElement {
 
     console.log(this.boxes);
 
-    socket.emit("save boxes", this.name, Array.from(this.boxes));
+    //if(this.plTurn !== -2) {//-2 means replay
+      socket.emit("save boxes", this.name, Array.from(this.boxes));
+    //}
+
     if (this.boxes.get(id).score >= 4) {
       this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor =
         color;
