@@ -419,24 +419,36 @@ export class GameBoard extends HTMLElement {
   chooseMaxRow() {
     let numChosed = 0;
     let lines = [];
-    for( let i = 0; i < this.size; i++){
+    let boxes = [];
+    for( let i = 0; i < this.size - 1; i++){
       let numCurrent = 0;
       let linesCurrent = [];
+      let boxesCurrent = [];
       for(let j = 0; j < this.size - 1; j++){
-        if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
+        // if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
+        //   numCurrent++;
+        // }
+        boxesCurrent.push(`#box-${i}${j}`);
+
+        linesCurrent.push(`#line${i-1}${j}-${i}${j}`);
+        if( parseInt(this.boxes.get(`${i}${j}`).score) >=4 ){
           numCurrent++;
         }
-        linesCurrent.push(`#line${i-1}${j}-${i}${j}`);
       }
       if (numCurrent > numChosed){
         numChosed = numCurrent;
         lines = [];
         lines = [...linesCurrent]; 
+        boxes = [];
+        boxes = [...boxesCurrent];
       }
     }
 
     lines.forEach( e =>{
       this.#_shadowRoot.querySelector(`${e}`).style.backgroundColor = "red";
+    })
+    boxes.forEach(b => {
+      this.#_shadowRoot.querySelector(`${b}`).style.backgroundColor = "red"
     })
   }
 }
