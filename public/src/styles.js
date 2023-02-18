@@ -193,8 +193,8 @@ h1.my-score {
 
   .home-column.create{
     background-color: #f6eff0;
-padding:20px;
-border-radius:20px;
+    padding:20px;
+    border-radius:20px;
   }
 
 
@@ -269,6 +269,8 @@ border-radius:20px;
     flex-wrap: nowrap;
     justify-content: space-around;
     margin: 0 10px;
+    border-bottom-width: thick;
+    border-right-width: thick;
 }
 .ChooseRoom:hover{
     background-color: #cbeefd;

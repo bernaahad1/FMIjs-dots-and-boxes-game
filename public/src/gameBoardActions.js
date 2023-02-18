@@ -11,22 +11,20 @@ let gameBoard = undefined;
 
 // TODO reset the game when someone leaves
 
-
-
 export const onChooseRoom = (event) => {
-  const currentRoom = event.target.value;
-  console.log(`updated currentRoom to: ${currentRoom}`);
+  event.preventDefault();
+  if (!event.target.id) {
+    return;
+  }
+
+  const currentRoom = event.target.id;
 
   let leaveRoom = false;
-  socket.emit("fetchCurrentRoomState", currentRoom, r => {
-
-    
+  socket.emit("fetchCurrentRoomState", currentRoom, (r) => {
     leaveRoom = parseInt(r.gameWinnerId) > -1 ? true : false;
-    console.log(`${r.gameWinnerId} if there is someone`, leaveRoom)
-  })
-  console.log(leaveRoom)
-  if(leaveRoom){
-    console.log("Stop dont enter")
+  });
+  if (leaveRoom) {
+    console.log("Stop dont enter");
     return;
   }
 
@@ -183,7 +181,6 @@ export const seclectedLineUpdateBox = (
   return { result1, result2 };
 };
 
-
-socket.on('start-packman', (lines, boxes) => {
+socket.on("start-packman", (lines, boxes) => {
   gameBoard.startPackman(lines, boxes);
-})
+});

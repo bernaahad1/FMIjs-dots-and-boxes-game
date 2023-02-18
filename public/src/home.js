@@ -120,7 +120,7 @@ export class Home extends HTMLElement {
       button.className = "ChooseRoom";
     }
 
-    button.innerHTML += `<img src="${roomImage}">`;
+    button.innerHTML += `<img src="${roomImage}" id="${roomName}">`;
 
     button.innerHTML += `${roomName} ${playersConnected}/${numPlayers} ${_state}`;
     allRooms.appendChild(button);
