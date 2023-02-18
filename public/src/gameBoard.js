@@ -286,8 +286,8 @@ export class GameBoard extends HTMLElement {
     );
   }
 
-  onScoreUpdate(index) {
-    this.playerScores[index] += 1;
+  onScoreUpdate(index, add = 1) {
+    this.playerScores[index] += add;
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
   }
@@ -421,8 +421,11 @@ export class GameBoard extends HTMLElement {
       let numCurrent = 0;
       let linesCurrent = [];
       let boxesCurrent = [];
-      for (let j = 0; j < this.size - 1; j++) {
-        boxesCurrent.push(`#box-${i}${j}`);
+      for(let j = 0; j < this.size - 1; j++){
+        // if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
+        //   numCurrent++;
+        // }
+        boxesCurrent.push(`${i}${j}`);
 
         linesCurrent.push(`#line${i - 1}${j}-${i}${j}`);
         if (parseInt(this.boxes.get(`${i}${j}`).score) >= 4) {
@@ -437,14 +440,6 @@ export class GameBoard extends HTMLElement {
         boxes = [...boxesCurrent];
       }
     }
-
-    lines.forEach((e) => {
-      this.#_shadowRoot.querySelector(`${e}`).style.backgroundColor = "red";
-    });
-
-    boxes.forEach((b) => {
-      this.#_shadowRoot.querySelector(`${b}`).style.backgroundColor = "red";
-    });
 
     this.startPackman(lines, boxes);
   }
@@ -487,6 +482,27 @@ export class GameBoard extends HTMLElement {
 
   checkPackmanOverLine(x) {
     console.log(x);
+    for (let i = 0; i< lines.length; i++){
+      this.removeRow(lines[i], boxes[i]);
+    }
+  }
+
+  removeRow(idRow,idBox, color, playerIndex) {
+    if(this.#_shadowRoot.querySelector(`${idRow}`).style.opacity == 100) {
+      if (this.boxes.get(idBox) === undefined) {
+        this.boxes.set(idBox, { score: NaN, owner: -1 });
+      } else if(this.boxes.get(idBox).score >= 4){
+        console.log('remove owner score', parseInt(this.boxes.get(idBox).owner));
+        this.onScoreUpdate(parseInt(this.boxes.get(idBox).owner), -1)
+      }
+      this.boxes.get(idBox).score--;
+      this.#_shadowRoot.querySelector(`#box-${idBox}`).style.backgroundColor = null;
+    }
+
+    this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = '30%';
+    this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute('disabled');
+
+    socket.emit("save boxes", this.name, Array.from(this.boxes));
   }
 }
 
