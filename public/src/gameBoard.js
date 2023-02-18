@@ -476,19 +476,25 @@ export class GameBoard extends HTMLElement {
 
       currentImage = currentImage <= 3 ? currentImage + 1 : 0;
       imageRect = image.getBoundingClientRect();
-      this.checkPackmanOverLine(imageRect.x);
+      this.checkPackmanOverLine(imageRect.x+30, lines, boxes);
     }, 100);
   }
 
-  checkPackmanOverLine(x) {
-    console.log(x);
+  checkPackmanOverLine(x, lines, boxes) {
+    //console.log(x);
     for (let i = 0; i< lines.length; i++){
-      this.removeRow(lines[i], boxes[i]);
+      if(x > this.#_shadowRoot
+        .querySelector(`${lines[i]}`)
+        .getBoundingClientRect().left){
+          this.removeRow(lines[i], boxes[i]);
+        }
     }
   }
 
   removeRow(idRow,idBox, color, playerIndex) {
-    if(this.#_shadowRoot.querySelector(`${idRow}`).style.opacity == 100) {
+    if(this.#_shadowRoot.querySelector(`${idRow}`).style.opacity != 100) {
+      return;
+    }
       if (this.boxes.get(idBox) === undefined) {
         this.boxes.set(idBox, { score: NaN, owner: -1 });
       } else if(this.boxes.get(idBox).score >= 4){
@@ -497,7 +503,7 @@ export class GameBoard extends HTMLElement {
       }
       this.boxes.get(idBox).score--;
       this.#_shadowRoot.querySelector(`#box-${idBox}`).style.backgroundColor = null;
-    }
+  
 
     this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = '30%';
     this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute('disabled');
