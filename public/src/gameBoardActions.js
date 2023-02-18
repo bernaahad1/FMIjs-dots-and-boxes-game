@@ -17,6 +17,19 @@ export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
   console.log(`updated currentRoom to: ${currentRoom}`);
 
+  let leaveRoom = false;
+  socket.emit("fetchCurrentRoomState", currentRoom, r => {
+
+    
+    leaveRoom = parseInt(r.gameWinnerId) > -1 ? true : false;
+    console.log(`${r.gameWinnerId} if there is someone`, leaveRoom)
+  })
+  console.log(leaveRoom)
+  if(leaveRoom){
+    console.log("Stop dont enter")
+    return;
+  }
+
   socket.emit("join room", currentRoom, (r, index) => {
     console.log(r);
     setPlayerIndex(index);
@@ -96,16 +109,16 @@ socket.on("user left", (room, playerLeftId) => {
   console.log("playerLeftId: ", playerLeftId);
   gameBoard.userLeft(playerLeftId);
 
-  gameBoard = new GameBoard(
-    gameBoard.name,
-    gameBoard.size - 1,
-    gameBoard.players,
-    playerIndex
-  );
+  // gameBoard = new GameBoard(
+  //   gameBoard.name,
+  //   gameBoard.size - 1,
+  //   gameBoard.players,
+  //   playerIndex
+  // );
 
-  console.log(gameBoard.players);
+  // console.log(gameBoard.players);
 
-  console.log("You win");
+  // console.log("You win");
 });
 
 //selecting lines

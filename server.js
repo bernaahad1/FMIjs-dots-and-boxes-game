@@ -34,6 +34,7 @@ io.on("connection", (socket) => {
     if (playerIndex !== -1) {
       rooms.get(room).players[playerIndex] = null;
       rooms.get(room).connected--;
+      rooms.get(room).gameWinnerId = playerIndex === 0 ? 1 : 0;
       io.emit("update room", rooms.get(room));
 
       // Todo fix but works
@@ -45,15 +46,13 @@ io.on("connection", (socket) => {
         room3.players[1] === null &&
         rooms.get(room).connected === 0
       ) {
-        // for (let i = 0; i < playerNum; i++) {
-        //   room.players.push(null);
-        // }
         room3.savedBoxes = "";
-
         room3.gameWinnerId = -1;
         room3.clickedLines = [];
         room3.linesClassName = [];
         room3.clickedFrom = [];
+        room3.plTurn = 0;
+        room3.connected = 0;
       }
     }
     socket.leave(room);
@@ -86,6 +85,9 @@ io.on("connection", (socket) => {
 
   socket.on("join room", (roomName, cb) => {
     clearPlayerGame();
+    if(rooms.get(roomName).gameWinnerId > -1){
+      return;
+    }
     socket.join(roomName);
     currentRoom = roomName;
     const players = rooms.get(roomName).players;
@@ -103,8 +105,8 @@ io.on("connection", (socket) => {
 
   socket.on("leave room", (cb) => {
     //you can leave the room
-    console.log("leave room", playerIndex, currentRoom);
-    console.log("äloooo");
+    //console.log("leave room", playerIndex, currentRoom);
+    //console.log("äloooo");
     clearPlayerGame();
 
     cb();
@@ -171,6 +173,7 @@ io.on("connection", (socket) => {
 
   socket.on("user left", (roomName, playerLeftId) => {
     console.log("user left server", roomName, playerLeftId);
+    //rooms.get(roomName).gameWinnerId = playerLeftId === 0 ? 1 : 0;
 
     io.to(roomName).emit("user left", roomName, playerLeftId);
   });

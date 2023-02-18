@@ -44,6 +44,7 @@ const template = createHomeTemplate();
 export class GameBoard extends HTMLElement {
   #_shadowRoot = null;
   winnerId = undefined;
+  usedPackman = false;
 
   constructor(
     name,
@@ -236,7 +237,7 @@ export class GameBoard extends HTMLElement {
       );
       this.boxes.get(id).owner = playerIndex;
       this.onScoreUpdate(playerIndex);
-      this.chechWinner();
+      this.checkWinner();
       return true;
     }
     return false;
@@ -292,13 +293,13 @@ export class GameBoard extends HTMLElement {
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
 
-    if (this.playerScores[0] + this.playerScores[1] === this.size - 1) {
+    if (this.playerScores[0] + this.playerScores[1] === this.size - 1 && !this.usedPackman) {
       this.#_shadowRoot.querySelector("#packman-section").style.display =
         "flex";
     }
   }
 
-  chechWinner() {
+  checkWinner() {
     if (
       this.playerScores.length !== 2 ||
       this.playerScores[0] + this.playerScores[1] <
@@ -492,6 +493,7 @@ export class GameBoard extends HTMLElement {
   launchPackman = () => {
     this.chooseMaxRow();
     this.#_shadowRoot.querySelector("#packman-section").style.display = "none";
+    this.usedPackman = true;
   };
 
   checkPackmanOverLine(x, lines, boxes) {
@@ -507,24 +509,28 @@ export class GameBoard extends HTMLElement {
     }
   }
 
-  removeRow(idRow, idBox, color, playerIndex) {
+  removeRow(idRow) {
     if (this.#_shadowRoot.querySelector(`${idRow}`).style.opacity != 100) {
       return;
     }
-    if (this.boxes.get(idBox) === undefined) {
-      this.boxes.set(idBox, { score: NaN, owner: -1 });
-    } else if (this.boxes.get(idBox).score >= 4) {
-      console.log("remove owner score", parseInt(this.boxes.get(idBox).owner));
-      this.onScoreUpdate(parseInt(this.boxes.get(idBox).owner), -1);
+    const twoBoxes = idRow.match(/[0-9]{2}/g);
+
+    twoBoxes.forEach( b => {
+      if (this.boxes.get(b) === undefined) {
+      this.boxes.set(b, { score: NaN, owner: -1 });
+    } else if (this.boxes.get(b).score >= 4) {
+      console.log("remove owner score", parseInt(this.boxes.get(b).owner));
+      this.onScoreUpdate(parseInt(this.boxes.get(b).owner), -1);
     }
-    this.boxes.get(idBox).score--;
-    this.#_shadowRoot.querySelector(`#box-${idBox}`).style.backgroundColor =
+    this.boxes.get(b).score--;
+    this.#_shadowRoot.querySelector(`#box-${b}`).style.backgroundColor =
       null;
 
     this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = "30%";
     this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute("disabled");
 
     socket.emit("save boxes", this.name, Array.from(this.boxes));
+  })
   }
 }
 
