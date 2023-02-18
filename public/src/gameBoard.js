@@ -1,7 +1,7 @@
 import { Router } from "./router";
 
 import { socket } from "./client_db.js";
-import { onLeaveRoom, launchPackman } from "./gameBoardActions.js";
+import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
 import { ModalComponent } from "./modalComponent.js";
 import { AlertComponent } from "./alert.js";
@@ -28,9 +28,10 @@ export const generateBoxes = (size) => {
 function createHomeTemplate() {
   const templateString = `
     <style>${style}</style>
-     <section class="game-room">
+     <section class="game-room"></section>
+    <section id="packman-section">
+      <button class="packman">Don't CLICK<button/>
     </section>
-    <button class="packman-go">Packman!<button/>
   `;
 
   const templateElement = document.createElement("template");
@@ -105,8 +106,8 @@ export class GameBoard extends HTMLElement {
       .addEventListener("click", onLeaveRoom);
 
     this.#_shadowRoot
-      .querySelector(".packman-go")
-      .addEventListener("click", launchPackman);
+      .querySelector(".packman")
+      .addEventListener("click", this.launchPackman);
 
     //load clicked elements
     this.clickedLines.forEach((lineId) => {
@@ -290,6 +291,11 @@ export class GameBoard extends HTMLElement {
     this.playerScores[index] += add;
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
+
+    if (this.playerScores[0] + this.playerScores[1] === this.size - 1) {
+      this.#_shadowRoot.querySelector("#packman-section").style.display =
+        "flex";
+    }
   }
 
   chechWinner() {
@@ -300,6 +306,8 @@ export class GameBoard extends HTMLElement {
     ) {
       return;
     }
+
+    this.#_shadowRoot.querySelector("#packman-section").style.display = "none";
 
     const opponentIndex = parseInt(this.playerIndex) === 0 ? 1 : 0;
 
@@ -421,7 +429,7 @@ export class GameBoard extends HTMLElement {
       let numCurrent = 0;
       let linesCurrent = [];
       let boxesCurrent = [];
-      for(let j = 0; j < this.size - 1; j++){
+      for (let j = 0; j < this.size - 1; j++) {
         // if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
         //   numCurrent++;
         // }
@@ -442,7 +450,7 @@ export class GameBoard extends HTMLElement {
     }
 
     // this.startPackman(lines, boxes);
-    socket.emit('start-packman', lines, boxes);
+    socket.emit("start-packman", lines, boxes);
   }
 
   startPackman(lines, boxes) {
@@ -477,37 +485,44 @@ export class GameBoard extends HTMLElement {
 
       currentImage = currentImage <= 3 ? currentImage + 1 : 0;
       imageRect = image.getBoundingClientRect();
-      this.checkPackmanOverLine(imageRect.x+30, lines, boxes);
+      this.checkPackmanOverLine(imageRect.x + 30, lines, boxes);
     }, 100);
   }
 
+  launchPackman = () => {
+    this.chooseMaxRow();
+    this.#_shadowRoot.querySelector("#packman-section").style.display = "none";
+  };
+
   checkPackmanOverLine(x, lines, boxes) {
     //console.log(x);
-    for (let i = 0; i< lines.length; i++){
-      if(x > this.#_shadowRoot
-        .querySelector(`${lines[i]}`)
-        .getBoundingClientRect().left){
-          this.removeRow(lines[i], boxes[i]);
-        }
+    for (let i = 0; i < lines.length; i++) {
+      if (
+        x >
+        this.#_shadowRoot.querySelector(`${lines[i]}`).getBoundingClientRect()
+          .left
+      ) {
+        this.removeRow(lines[i], boxes[i]);
+      }
     }
   }
 
-  removeRow(idRow,idBox, color, playerIndex) {
-    if(this.#_shadowRoot.querySelector(`${idRow}`).style.opacity != 100) {
+  removeRow(idRow, idBox, color, playerIndex) {
+    if (this.#_shadowRoot.querySelector(`${idRow}`).style.opacity != 100) {
       return;
     }
-      if (this.boxes.get(idBox) === undefined) {
-        this.boxes.set(idBox, { score: NaN, owner: -1 });
-      } else if(this.boxes.get(idBox).score >= 4){
-        console.log('remove owner score', parseInt(this.boxes.get(idBox).owner));
-        this.onScoreUpdate(parseInt(this.boxes.get(idBox).owner), -1)
-      }
-      this.boxes.get(idBox).score--;
-      this.#_shadowRoot.querySelector(`#box-${idBox}`).style.backgroundColor = null;
-  
+    if (this.boxes.get(idBox) === undefined) {
+      this.boxes.set(idBox, { score: NaN, owner: -1 });
+    } else if (this.boxes.get(idBox).score >= 4) {
+      console.log("remove owner score", parseInt(this.boxes.get(idBox).owner));
+      this.onScoreUpdate(parseInt(this.boxes.get(idBox).owner), -1);
+    }
+    this.boxes.get(idBox).score--;
+    this.#_shadowRoot.querySelector(`#box-${idBox}`).style.backgroundColor =
+      null;
 
-    this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = '30%';
-    this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute('disabled');
+    this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = "30%";
+    this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute("disabled");
 
     socket.emit("save boxes", this.name, Array.from(this.boxes));
   }

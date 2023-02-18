@@ -25,6 +25,7 @@ a {
   align-items: center;
   display: flex;
   flex-direction: column;
+  padding-left: 43px;
 }
 
 .box {
@@ -109,10 +110,11 @@ a {
 .players {
   padding: 40px 10px 40px 10px;
   display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
+  flex-direction: column;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
 }
 
 .center {
@@ -123,6 +125,7 @@ a {
   padding: 0 10px 0 10px;
   border-radius: 5px;
   background-color: rgb(217, 217, 217);
+  margin-bottom: 10px;
 }
 h1.my-score {
   background-color: pink;
@@ -146,6 +149,12 @@ h1.my-score {
   padding: 40px 10px 0px 10px;
   justify-content: center;
 }
+
+.game-state h1{
+    font-size: 36px;
+    font-family: cursive;
+}
+
 .home-row{
     display: flex;
     flex-direction: row;
@@ -189,9 +198,12 @@ h1.my-score {
   margin:0;
 }
 
+
 .create-room:hover{
     background-color: #cbeefd;
 }
+
+
 
 .home-column input {
     font-size: 24px;
@@ -202,7 +214,9 @@ h1.my-score {
 }
 
 .home-column h2{
+  margin-top:20px;
     font-size: 50px;
+    align-self: center;
 }
 
 .title{
@@ -249,4 +263,33 @@ h1.my-score {
 .ChooseRoomFull:hover{
     background-color: #ffffff;
     border-color: #cbeefd;
-}`;
+}
+
+.packman{
+  font-size: 46px;
+    border-radius: 24px;
+    color: darkred;
+    background-color: red;
+    border-color: darkred;
+    border-bottom-width: thick;
+    border-right-width: thick;
+    border-style: solid;
+    margin: 0px auto;
+    padding: 5px 20px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    z-index:250;
+    position: relative;
+}
+
+.packman:hover{
+    background-color: #F6F5F0;
+}
+
+#packman-section{
+  display: none;
+    margin: 40px 0;
+}
+
+
+`;
