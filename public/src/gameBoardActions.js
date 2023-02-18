@@ -11,6 +11,10 @@ let gameBoard = undefined;
 
 // TODO reset the game when someone leaves
 
+export const launchPackman = () => {
+  gameBoard.chooseMaxRow()
+}
+
 export const onChooseRoom = (event) => {
   const currentRoom = event.target.value;
   console.log(`updated currentRoom to: ${currentRoom}`);

@@ -1,7 +1,7 @@
 import { Router } from "./router";
 
 import { socket } from "./client_db.js";
-import { onLeaveRoom } from "./gameBoardActions.js";
+import { onLeaveRoom, launchPackman } from "./gameBoardActions.js";
 import { style } from "./styles.js";
 import { ModalComponent } from "./modalComponent.js";
 import { AlertComponent } from "./alert.js";
@@ -28,7 +28,7 @@ function createHomeTemplate() {
     <style>${style}</style>
      <section class="game-room">
     </section>
-    <button class="replay-game-button">Click for replay (I am going to be shown at the end of the game!)<button/>
+    <button class="packman-go">Packman!<button/>
   `;
 
   const templateElement = document.createElement("template");
@@ -103,9 +103,8 @@ export class GameBoard extends HTMLElement {
       .addEventListener("click", onLeaveRoom);
 
     this.#_shadowRoot
-      .querySelector(".replay-game-button")
-      .addEventListener("click", onReplayGame);
-    this.#_shadowRoot.querySelector(".replay-game-button").value = this.name;
+      .querySelector(".packman-go")
+      .addEventListener("click", launchPackman);
 
     //load clicked elements
     this.clickedLines.forEach((lineId) => {
@@ -415,6 +414,30 @@ export class GameBoard extends HTMLElement {
         "Waiting for opponent to play";
       disableDiv.className = "overlay-disable";
     }
+  }
+
+  chooseMaxRow() {
+    let numChosed = 0;
+    let lines = [];
+    for( let i = 0; i < this.size; i++){
+      let numCurrent = 0;
+      let linesCurrent = [];
+      for(let j = 0; j < this.size - 1; j++){
+        if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
+          numCurrent++;
+        }
+        linesCurrent.push(`#line${i-1}${j}-${i}${j}`);
+      }
+      if (numCurrent > numChosed){
+        numChosed = numCurrent;
+        lines = [];
+        lines = [...linesCurrent]; 
+      }
+    }
+
+    lines.forEach( e =>{
+      this.#_shadowRoot.querySelector(`${e}`).style.backgroundColor = "red";
+    })
   }
 }
 
