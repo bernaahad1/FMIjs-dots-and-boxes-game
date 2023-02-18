@@ -80,6 +80,9 @@ export class Home extends HTMLElement {
   onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 2) => {
     console.log(`Create ${this.newRoomName} with size ${this.newRoomSize}`);
     if (this.newRoomName === "") {
+      if(this.#_shadowRoot.querySelector("modal-component") != null){
+        return;
+      }
       const modal = document.createElement("modal-component");
       modal.innerHTML = `<alert-component title="Wrong input!" description="Please enter room name"/>`;
 
@@ -91,6 +94,9 @@ export class Home extends HTMLElement {
       this.newRoomSize > 10 ||
       Number(this.newRoomSize) === NaN
     ) {
+      if(this.#_shadowRoot.querySelector("modal-component") != null){
+        return;
+      }
       const modal = document.createElement("modal-component");
 
       modal.innerHTML = `<alert-component title="Wrong grid size!" description="Size must be between 2 and 10"></alert-component>`;
@@ -98,6 +104,9 @@ export class Home extends HTMLElement {
       return;
     }
     if (rooms.has(this.newRoomName)) {
+      if(this.#_shadowRoot.querySelector("modal-component") != null){
+        return;
+      }
       const modal = document.createElement("modal-component");
 
       modal.innerHTML = `<alert-component title="Aready exist!" description="Please select unique room name"></alert-component>`;

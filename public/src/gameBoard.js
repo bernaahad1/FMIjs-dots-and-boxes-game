@@ -351,8 +351,7 @@ export class GameBoard extends HTMLElement {
   userLeft(playerLeftId) {
     console.log(this.playerIndex);
 
-    console.log(this.#_shadowRoot.querySelector(".modal-overlay"))
-    if(this.#_shadowRoot.querySelector(".modal-overlay") != null){
+    if(this.#_shadowRoot.querySelector("modal-component") != null){
       return;
     }
 
