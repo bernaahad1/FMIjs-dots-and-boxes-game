@@ -65,8 +65,13 @@ class ModalComponent extends HTMLElement {
 
   constructor() {
     super();
-    this.#_shadowRoot = this.attachShadow({ mode: "closed" });
+    this.#_shadowRoot = this.attachShadow({ mode: "open" });
     this.#_shadowRoot.appendChild(template.content.cloneNode(true));
+    this._callback = () => {};
+  }
+
+  set callback(callback) {
+    this._callback = callback;
   }
 
   connectedCallback() {
@@ -82,6 +87,8 @@ class ModalComponent extends HTMLElement {
   }
 
   closeModal() {
+    this._callback();
+
     this.remove();
   }
 }

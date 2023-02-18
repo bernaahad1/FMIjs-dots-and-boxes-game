@@ -5,7 +5,11 @@ import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
 import { ModalComponent } from "./modalComponent.js";
 import { AlertComponent } from "./alert.js";
-import { onReplayGame } from "./gameBoardReplay";
+import {
+  onReplayGame,
+  onReplayAfterEnd,
+  clickNextLine,
+} from "./gameBoardReplay";
 
 import img from "./assets/logo_FMIJS.png";
 
@@ -22,7 +26,7 @@ export const generateBoxes = (size) => {
 function createHomeTemplate() {
   const templateString = `
     <style>${style}</style>
-        <section class="game-room">
+     <section class="game-room">
     </section>
     <button class="replay-game-button">Click for replay (I am going to be shown at the end of the game!)<button/>
   `;
@@ -45,7 +49,8 @@ export class GameBoard extends HTMLElement {
     playerIndex,
     plTurn,
     savedBoxes,
-    clickedLines
+    clickedLines,
+    isReplay
   ) {
     super();
 
@@ -64,6 +69,7 @@ export class GameBoard extends HTMLElement {
     this.savedBoxes = savedBoxes;
     this.plTurn = plTurn;
     this.clickedLines = clickedLines || [];
+    this.isReplay = isReplay;
 
     if (savedBoxes !== "") {
       this.boxes.forEach((val, key) => {
@@ -237,6 +243,34 @@ export class GameBoard extends HTMLElement {
     return false;
   }
 
+  goToReplay() {
+    console.log(
+      `${this.name} is being replayed from player ${this.playerIndex}`
+    );
+
+    socket.emit("fetchCurrentRoomState", this.name, (r) => {
+      //console.log(r)
+
+      gameBoard = new GameBoard(
+        r.name,
+        r.size,
+        r.players,
+        this.playerIndex,
+        -2,
+        "",
+        []
+      );
+      //console.log(gameBoard);
+
+      const router = document
+        .getElementsByTagName("app-root")[0]
+        .shadowRoot.querySelector("app-router");
+      router.render(`/roomReplay/${this.name}`, gameBoard);
+
+      clickNextLine(r, r.clickedLines.length);
+    });
+  }
+
   updateLineState(id) {
     const line = this.#_shadowRoot.querySelector(`#${id}`);
 
@@ -271,7 +305,6 @@ export class GameBoard extends HTMLElement {
 
     const opponentIndex = parseInt(this.playerIndex) === 0 ? 1 : 0;
 
-
     const description =
       this.playerScores[opponentIndex] < this.playerScores[this.playerIndex]
         ? "You are the winner!"
@@ -288,8 +321,17 @@ export class GameBoard extends HTMLElement {
         ? 2
         : opponentIndex;
 
+  
+
     const modal = document.createElement("modal-component");
-    modal.innerHTML = `<alert-component title="End Game!" description="${description}"/>`;
+    if (this.isReplay) {
+      modal.callback = () => onLeaveRoom();
+    } else {
+      modal.callback = () => onReplayAfterEnd(this.name, this.playerIndex);
+    }
+
+    modal.setAttribute("path", `/roomReplay/${this.name}`);
+    modal.innerHTML = `<alert-component title="End Game!" description="${description}" path="/roomReplay/${this.name}"/>`;
     this.#_shadowRoot.appendChild(modal);
 
     // disable playing when game ends
@@ -304,23 +346,28 @@ export class GameBoard extends HTMLElement {
 
     if (this.winnerId >= 0 && this.playerIndex >= 0) {
       const modal = document.createElement("modal-component");
-      modal.innerHTML = `<alert-component title="Your opponent left!"/>`;
+
+      modal.innerHTML = `<alert-component title="Your opponent left!" path="/" />`;
       this.#_shadowRoot.appendChild(modal);
+
+      modal.callback = () => onLeaveRoom();
 
       const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
       disableDiv.className = "overlay-disable";
       return;
     }
-    // TODO update players
+
     if (this.playerIndex === -1) {
       console.log(this.playerIndex);
 
       const modal = document.createElement("modal-component");
-      modal.innerHTML = `<alert-component title="Game Over!" description="One of the players left the game!"/>`;
+      modal.callback = () => onLeaveRoom();
+      modal.innerHTML = `<alert-component title="Game Over!" description="One of the players left the game!" path="/"/>`;
       this.#_shadowRoot.appendChild(modal);
     } else {
       const modal = document.createElement("modal-component");
-      modal.innerHTML = `<alert-component title="Game Over!" description="The other player left the game!\nYou are the winner!"/>`;
+      modal.callback = () => onLeaveRoom();
+      modal.innerHTML = `<alert-component title="Game Over!" description="The other player left the game!\nYou are the winner!" path="/" />`;
       this.#_shadowRoot.appendChild(modal);
     }
 
@@ -336,13 +383,19 @@ export class GameBoard extends HTMLElement {
     if (this.playerIndex === winnerId) {
       title = "Congratulations!";
       description = "You are the winner!";
-    } else {
+    } else if (this.playerIndex !== -1) {
       title = "Game Over!";
       description = "You can be winner next time!";
+    } else {
+      title = "Game Over!";
+      description = `Player ${winnerId} is the winner`;
     }
 
     const modal = document.createElement("modal-component");
-    modal.innerHTML = `<alert-component title="${title}" description="${description}" />`;
+
+    modal.callback = () => onReplayAfterEnd(this.name, this.playerIndex);
+
+    modal.innerHTML = `<alert-component title="${title}" description="${description}" path="/roomReplay/${this.name}" />`;
     this.#_shadowRoot.appendChild(modal);
 
     // disable playing the game when someone lefts

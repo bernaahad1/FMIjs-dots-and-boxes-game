@@ -27,7 +27,8 @@ export const onChooseRoom = (event) => {
       playerIndex,
       r.plTurn,
       r.savedBoxes,
-      r.clickedLines
+      r.clickedLines,
+      r.isReplay
     );
 
     const router = document
@@ -44,15 +45,18 @@ export const onChooseRoom = (event) => {
 };
 
 export const onLeaveRoom = (event) => {
-  socket.emit("user left", gameBoard.name, playerIndex);
+  console.log(gameBoard.isReplay);
+  if (!gameBoard.isReplay) {
+    socket.emit("user left", gameBoard.name, playerIndex);
+  }
 
   // console.log("emit leave");
 
   socket.emit("leave room", () => {
     console.log(`Player ${playerIndex} has disconnected onLeaveRoom`);
-    gameBoard = undefined;
+    // gameBoard = undefined;
     // playerIndex = -1;
-    setPlayerIndex(-1);
+    // setPlayerIndex(-1);
 
     const router = document
       .getElementsByTagName("app-root")[0]
@@ -63,13 +67,19 @@ export const onLeaveRoom = (event) => {
   });
 };
 
-// export const onLeavePage = (event) => {
-//   socket.emit("leave room", () => {
-//     console.log(`Player ${playerIndex} has disconnected onLeavePage`);
-//     gameBoard = undefined;
-//     setPlayerIndex(-1);
-//   });
-// };
+export const onLeavePage = (event) => {
+  console.log(gameBoard.isReplay);
+
+  if (!gameBoard.isReplay) {
+    socket.emit("user left", gameBoard.name, playerIndex);
+  }
+
+  socket.emit("leave room", () => {
+    console.log(`Player ${playerIndex} has disconnected onLeavePage`);
+    gameBoard = undefined;
+    setPlayerIndex(-1);
+  });
+};
 
 socket.on("user left", (room, playerLeftId) => {
   console.log("alooo, ", room, playerLeftId);

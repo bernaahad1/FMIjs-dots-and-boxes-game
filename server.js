@@ -42,7 +42,8 @@ io.on("connection", (socket) => {
       if (
         room3.players &&
         room3.players[0] === null &&
-        room3.players[1] === null
+        room3.players[1] === null &&
+        rooms.get(room).connected === 0
       ) {
         // for (let i = 0; i < playerNum; i++) {
         //   room.players.push(null);

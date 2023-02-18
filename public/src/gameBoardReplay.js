@@ -16,8 +16,8 @@ export const onReplayGame = (event) => {
   const currentRoom = event.target.value;
   console.log(`${currentRoom} is being replayed from player ${playerIndex}`);
 
-    socket.emit("fetchCurrentRoomState", currentRoom, ((r) => {
-        //console.log(r)
+  socket.emit("fetchCurrentRoomState", currentRoom, (r) => {
+    //console.log(r)
 
     gameBoard = new GameBoard(
       r.name,
@@ -25,8 +25,9 @@ export const onReplayGame = (event) => {
       r.players,
       playerIndex,
       -2,
-      '',
-      []
+      "",
+      [],
+      true
     );
     //console.log(gameBoard);
 
@@ -36,22 +37,48 @@ export const onReplayGame = (event) => {
     router.render(`/roomReplay/${currentRoom}`, gameBoard);
 
     clickNextLine(r, r.clickedLines.length);
-}))
+  });
 };
 
-const clickNextLine = async(r, len) => {
+export const onReplayAfterEnd = (currentRoom, playerIndex) => {
+  console.log(`${currentRoom} is being replayed from player ${playerIndex}`);
+
+  socket.emit("fetchCurrentRoomState", currentRoom, (r) => {
+    //console.log(r)
+
+    gameBoard = new GameBoard(
+      r.name,
+      r.size,
+      r.players,
+      playerIndex,
+      -2,
+      "",
+      [],
+      true
+    );
+    //console.log(gameBoard);
+
+    const router = document
+      .getElementsByTagName("app-root")[0]
+      .shadowRoot.querySelector("app-router");
+    router.render(`/roomReplay/${currentRoom}`, gameBoard);
+
+    clickNextLine(r, r.clickedLines.length);
+  });
+};
+
+export const clickNextLine = async (r, len) => {
   let i = 0;
   const timer = setInterval(() => {
-      const line = r.clickedLines[i];
-      const from = r.clickedFrom[i];
-      const cName = r.linesClassName[i];
-      
-      //console.log(`clicked ${line} from ${from} with className ${cName}`);
-      gameBoard.updateLineState(line);
-      seclectedLineUpdateBox(cName, from, gameBoard);
-      i++;
-      if(i === len){
-        clearInterval(timer);
-      }
+    const line = r.clickedLines[i];
+    const from = r.clickedFrom[i];
+    const cName = r.linesClassName[i];
+
+    gameBoard.updateLineState(line);
+    seclectedLineUpdateBox(cName, from, gameBoard);
+    i++;
+    if (i === len) {
+      clearInterval(timer);
+    }
   }, lineClick);
-}
+};

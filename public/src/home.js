@@ -16,7 +16,7 @@ function createHomeTemplate() {
             </div>
             <button class="create-room">Create Room</button>
             <input type="text" id="IRoomName" placeholder="Room name" maxlength="10" required>
-            <input type="number" id="IGridSize" placeholder="Grid size(4-10)" min="4" max="10" required>
+            <input type="number" id="IGridSize" placeholder="Grid size(2-10)" min="4" max="10" required>
           </div>
           <div class="home-column">
             <h2>All Rooms</h2>
@@ -74,20 +74,22 @@ export class Home extends HTMLElement {
     this.newRoomSize = e.target.value;
   };
 
-  onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 4) => {
+  onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 2) => {
     console.log(`Create ${this.newRoomName} with size ${this.newRoomSize}`);
     if (this.newRoomName === "") {
       const modal = document.createElement("modal-component");
       modal.innerHTML = `<alert-component title="Wrong input!" description="Please enter room name"/>`;
+      
       this.#_shadowRoot.appendChild(modal);
       return;
     }
     if (
-      this.newRoomSize < 4 ||
+      this.newRoomSize < 2 ||
       this.newRoomSize > 10 ||
       Number(this.newRoomSize) === NaN
     ) {
       const modal = document.createElement("modal-component");
+      
       modal.innerHTML = `<alert-component title="Wrong grid size!" description="Size must be between 4 and 10"></alert-component>`;
       this.#_shadowRoot.appendChild(modal);
       return;

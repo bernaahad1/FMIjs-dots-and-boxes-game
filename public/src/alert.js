@@ -53,6 +53,7 @@ const template = createHomeTemplate();
 class AlertComponent extends HTMLElement {
   #_shadowRoot = null;
 
+  _path = "";
   constructor() {
     super();
     this.#_shadowRoot = this.attachShadow({ mode: "closed" });
@@ -67,7 +68,7 @@ class AlertComponent extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["title", "description", "button-text"];
+    return ["title", "description", "button-text", "path"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -85,6 +86,9 @@ class AlertComponent extends HTMLElement {
         this._button.textContent = newValue;
         this._button.style.display = "block";
 
+      case "path":
+        this._path = newValue;
+
         break;
     }
   }
@@ -98,6 +102,14 @@ class AlertComponent extends HTMLElement {
   }
 
   closeModal() {
+    if (this._path !== "") {
+      const router = document
+        .getElementsByTagName("app-root")[0]
+        .shadowRoot.querySelector("app-router");
+
+      router.render("/");
+    }
+    
     this.remove();
   }
 }
