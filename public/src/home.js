@@ -17,7 +17,7 @@ function createHomeTemplate() {
               <img src="${img}" alt="Dots and Boxes" />
             </div>
             <input type="text" id="IRoomName" placeholder="Room name" maxlength="10" required>
-            <input type="number" id="IGridSize" placeholder="Grid size(2-10)" min="4" max="10" required>
+            <input type="number" id="IGridSize" placeholder="Grid size(2-10)" min="2" max="10" required>
             <button class="create-room">Create Room</button>
           </div>
           <div class="home-column">
@@ -92,7 +92,14 @@ export class Home extends HTMLElement {
     ) {
       const modal = document.createElement("modal-component");
 
-      modal.innerHTML = `<alert-component title="Wrong grid size!" description="Size must be between 4 and 10"></alert-component>`;
+      modal.innerHTML = `<alert-component title="Wrong grid size!" description="Size must be between 2 and 10"></alert-component>`;
+      this.#_shadowRoot.appendChild(modal);
+      return;
+    }
+    if (rooms.has(this.newRoomName)) {
+      const modal = document.createElement("modal-component");
+
+      modal.innerHTML = `<alert-component title="Aready exist!" description="Please select unique room name"></alert-component>`;
       this.#_shadowRoot.appendChild(modal);
       return;
     }
