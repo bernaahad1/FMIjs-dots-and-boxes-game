@@ -1,3 +1,4 @@
+import { style_bubble } from "./style_bubles";
 export const style = `*,
 ::after,
 ::before {
@@ -328,4 +329,4 @@ h1.my-score {
 }
 
 
-`;
+` + style_bubble;

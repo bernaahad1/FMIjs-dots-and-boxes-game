@@ -3,6 +3,7 @@ import { Router } from "./router";
 import { socket } from "./client_db.js";
 import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
+import { bubble } from "./bubbles";
 import { ModalComponent } from "./modalComponent.js";
 import { AlertComponent } from "./alert.js";
 import {
@@ -28,6 +29,7 @@ export const generateBoxes = (size) => {
 function createHomeTemplate() {
   const templateString = `
     <style>${style}</style>
+    ${bubble}
      <section class="game-room"></section>
     <section id="packman-section">
       <button class="packman">Don't CLICK<button/>
@@ -513,7 +515,9 @@ export class GameBoard extends HTMLElement {
     if (this.#_shadowRoot.querySelector(`${idRow}`).style.opacity != 100) {
       return;
     }
-    const twoBoxes = idRow.match(/[0-9]{2}/g);
+    const twoBoxes = idRow.match(/-?[0-9]{2}/g);
+    twoBoxes[1] = twoBoxes[1].match(/[0-9]{2}/g)[0];
+    console.log(twoBoxes)
 
     twoBoxes.forEach( b => {
       if (this.boxes.get(b) === undefined) {
@@ -521,11 +525,11 @@ export class GameBoard extends HTMLElement {
     } else if (this.boxes.get(b).score >= 4) {
       console.log("remove owner score", parseInt(this.boxes.get(b).owner));
       this.onScoreUpdate(parseInt(this.boxes.get(b).owner), -1);
-    }
-    this.boxes.get(b).score--;
+    
     this.#_shadowRoot.querySelector(`#box-${b}`).style.backgroundColor =
       null;
-
+    }
+    this.boxes.get(b).score--;
     this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = "30%";
     this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute("disabled");
 
