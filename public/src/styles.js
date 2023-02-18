@@ -157,10 +157,21 @@ h1.my-score {
 
 .home-row{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
-    align-content: flex-start;
+    align-content: center;
     flex-wrap: wrap;
+    align-items: center;
+
+}
+#home-all-rooms{
+  display: flex;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
 }
 .home-row-hidden{
     display: none;
@@ -170,13 +181,22 @@ h1.my-score {
     flex-wrap: wrap;
 }
 
+
 .home-column{
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
     flex-wrap: nowrap;
     row-gap: 15px;
-}
+    padding: 0 20px;
+  }
+
+  .home-column.create{
+    background-color: #f6eff0;
+padding:20px;
+border-radius:20px;
+  }
+
 
 .create-room{
     font-size: 30px;
@@ -214,7 +234,7 @@ h1.my-score {
 }
 
 .home-column h2{
-  margin-top:20px;
+  margin-top:40px;
     font-size: 50px;
     align-self: center;
 }
@@ -240,10 +260,24 @@ h1.my-score {
     transition-duration: 0.4s;
     cursor: pointer;
     border-color: #cbeefd;
-    min-width: 280px;
+    width: 280px;
+    overflow: hidden;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    margin: 0 10px;
 }
 .ChooseRoom:hover{
     background-color: #cbeefd;
+}
+
+.ChooseRoom img{
+  width: 200px;
+  border-radius: 20px;
+
 }
 
 .ChooseRoomFull {

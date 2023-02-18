@@ -4,19 +4,21 @@ import { ModalComponent } from "./modalComponent.js";
 import { AlertComponent } from "./alert.js";
 
 import img from "./assets/logo_FMIJS.png";
+import roomImage from "./assets/room.png";
+
 import { style } from "./styles.js";
 
 function createHomeTemplate() {
   const templateString = `
   <style>${style}</style>
         <div class="home-row" id="home-menu">
-          <div class="home-column">
+          <div class="home-column create">
             <div class="title">
               <img src="${img}" alt="Dots and Boxes" />
             </div>
-            <button class="create-room">Create Room</button>
             <input type="text" id="IRoomName" placeholder="Room name" maxlength="10" required>
             <input type="number" id="IGridSize" placeholder="Grid size(2-10)" min="4" max="10" required>
+            <button class="create-room">Create Room</button>
           </div>
           <div class="home-column">
             <h2>All Rooms</h2>
@@ -79,7 +81,7 @@ export class Home extends HTMLElement {
     if (this.newRoomName === "") {
       const modal = document.createElement("modal-component");
       modal.innerHTML = `<alert-component title="Wrong input!" description="Please enter room name"/>`;
-      
+
       this.#_shadowRoot.appendChild(modal);
       return;
     }
@@ -89,7 +91,7 @@ export class Home extends HTMLElement {
       Number(this.newRoomSize) === NaN
     ) {
       const modal = document.createElement("modal-component");
-      
+
       modal.innerHTML = `<alert-component title="Wrong grid size!" description="Size must be between 4 and 10"></alert-component>`;
       this.#_shadowRoot.appendChild(modal);
       return;
@@ -109,6 +111,8 @@ export class Home extends HTMLElement {
     } else {
       button.className = "ChooseRoom";
     }
+
+    button.innerHTML += `<img src="${roomImage}">`;
 
     button.innerHTML += `${roomName} ${playersConnected}/${numPlayers} ${_state}`;
     allRooms.appendChild(button);
