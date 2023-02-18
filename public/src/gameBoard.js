@@ -12,6 +12,8 @@ import {
 } from "./gameBoardReplay";
 
 import img from "./assets/logo_FMIJS.png";
+import openMouth from "./assets/packman-mouth-open.png";
+import closedMouth from "./assets/packman-mouth-closed.png";
 
 export const generateBoxes = (size) => {
   const bx = new Map();
@@ -235,9 +237,6 @@ export class GameBoard extends HTMLElement {
       this.onScoreUpdate(playerIndex);
       this.chechWinner();
       return true;
-      // document.getElementById(
-      //   `${id}`
-      // ).innerHTML += `<h1 class="winnerText">B<h1>`;
     }
     return false;
   }
@@ -319,8 +318,6 @@ export class GameBoard extends HTMLElement {
           this.playerScores[this.playerIndex]
         ? 2
         : opponentIndex;
-
-  
 
     const modal = document.createElement("modal-component");
     if (this.isReplay) {
@@ -420,36 +417,76 @@ export class GameBoard extends HTMLElement {
     let numChosed = 0;
     let lines = [];
     let boxes = [];
-    for( let i = 0; i < this.size - 1; i++){
+    for (let i = 0; i < this.size - 1; i++) {
       let numCurrent = 0;
       let linesCurrent = [];
       let boxesCurrent = [];
-      for(let j = 0; j < this.size - 1; j++){
-        // if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
-        //   numCurrent++;
-        // }
+      for (let j = 0; j < this.size - 1; j++) {
         boxesCurrent.push(`#box-${i}${j}`);
 
-        linesCurrent.push(`#line${i-1}${j}-${i}${j}`);
-        if( parseInt(this.boxes.get(`${i}${j}`).score) >=4 ){
+        linesCurrent.push(`#line${i - 1}${j}-${i}${j}`);
+        if (parseInt(this.boxes.get(`${i}${j}`).score) >= 4) {
           numCurrent++;
         }
       }
-      if (numCurrent > numChosed){
+      if (numCurrent > numChosed) {
         numChosed = numCurrent;
         lines = [];
-        lines = [...linesCurrent]; 
+        lines = [...linesCurrent];
         boxes = [];
         boxes = [...boxesCurrent];
       }
     }
 
-    lines.forEach( e =>{
+    lines.forEach((e) => {
       this.#_shadowRoot.querySelector(`${e}`).style.backgroundColor = "red";
-    })
-    boxes.forEach(b => {
-      this.#_shadowRoot.querySelector(`${b}`).style.backgroundColor = "red"
-    })
+    });
+
+    boxes.forEach((b) => {
+      this.#_shadowRoot.querySelector(`${b}`).style.backgroundColor = "red";
+    });
+
+    this.startPackman(lines, boxes);
+  }
+
+  startPackman(lines, boxes) {
+    const rect = this.#_shadowRoot
+      .querySelector(`${lines[0]}`)
+      .getBoundingClientRect();
+
+    let image = document.createElement("img");
+    image.setAttribute("src", openMouth);
+    image.setAttribute("id", "packman");
+    image.style.position = "fixed";
+
+    image.style.top = `${rect.top - 70}px`;
+
+    this.#_shadowRoot.appendChild(image);
+    let left = -150;
+    image.style.left = `${left}px`;
+    const windowWidth = window.innerWidth;
+
+    let imageRect = image.getBoundingClientRect();
+
+    // If 0 and 1 then open mouth if 2 and 3 then closed
+    let currentImage = 0;
+    const intervalId = setInterval(() => {
+      if (imageRect.x > windowWidth) {
+        clearInterval(intervalId);
+      }
+      left += 10;
+      image.style.left = `${left}px`;
+
+      image.setAttribute("src", currentImage <= 1 ? closedMouth : openMouth);
+
+      currentImage = currentImage <= 3 ? currentImage + 1 : 0;
+      imageRect = image.getBoundingClientRect();
+      this.checkPackmanOverLine(imageRect.x);
+    }, 100);
+  }
+
+  checkPackmanOverLine(x) {
+    console.log(x);
   }
 }
 
