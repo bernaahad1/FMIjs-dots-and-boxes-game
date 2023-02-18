@@ -1,5 +1,6 @@
 import { style_bubble } from "./style_bubles";
-export const style = `*,
+export const style =
+  `*,
 ::after,
 ::before {
   box-sizing: border-box;
@@ -282,6 +283,11 @@ h1.my-score {
   border-radius: 20px;
 
 }
+.ChooseRoomFull img{ 
+  width: 200px;
+  border-radius: 20px;
+}
+
 
 .ChooseRoomFull {
     font-size: 30px;
@@ -289,13 +295,25 @@ h1.my-score {
     border-radius: 20px;
     color: black;
     background-color: #e997ab;
+    border-color: #cbeefd;
     border-style: solid;
     margin: 0px auto;
     padding: 5px 20px;
     transition-duration: 0.4s;
     cursor: pointer;
     border: none;
-    min-width: 280px;
+    width: 280px;
+    overflow: hidden;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    margin: 0 10px;
+    border-bottom-width: thick;
+    border-right-width: thick;
+
 }
 .ChooseRoomFull:hover{
     background-color: #ffffff;
