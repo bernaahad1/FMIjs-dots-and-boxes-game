@@ -441,7 +441,8 @@ export class GameBoard extends HTMLElement {
       }
     }
 
-    this.startPackman(lines, boxes);
+    // this.startPackman(lines, boxes);
+    socket.emit('start-packman', lines, boxes);
   }
 
   startPackman(lines, boxes) {

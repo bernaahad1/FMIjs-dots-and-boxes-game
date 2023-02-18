@@ -180,4 +180,8 @@ io.on("connection", (socket) => {
 
     rooms.get(currentRoom).gameWinnerId = winnerId;
   });
+
+  socket.on('start-packman', (lines, boxes) =>{
+    io.to(currentRoom).emit("start-packman", lines, boxes);
+  })
 });

@@ -171,3 +171,8 @@ export const seclectedLineUpdateBox = (
 
   return { result1, result2 };
 };
+
+
+socket.on('start-packman', (lines, boxes) => {
+  gameBoard.startPackman(lines, boxes);
+})
