@@ -56,11 +56,11 @@ export class Home extends HTMLElement {
 
     this.#_shadowRoot
       .querySelector("#IRoomName")
-      .addEventListener("change", this.changeRoomInput);
+      .addEventListener("input", this.changeRoomInput);
 
     this.#_shadowRoot
       .querySelector("#IGridSize")
-      .addEventListener("change", this.changeSizeInput);
+      .addEventListener("input", this.changeSizeInput);
   }
 
   connectedCallback() {
@@ -68,11 +68,12 @@ export class Home extends HTMLElement {
   }
 
   changeRoomInput = (e) => {
-    console.log(e.target.value);
+    e.target.value = e.target.value.replace(/[^a-zA-Z]+/g, "");
     this.newRoomName = e.target.value;
   };
 
   changeSizeInput = (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]+/g, "");
     this.newRoomSize = e.target.value;
   };
 
