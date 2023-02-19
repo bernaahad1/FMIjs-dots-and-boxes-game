@@ -9,8 +9,6 @@ import {
 
 let gameBoard = undefined;
 
-// TODO reset the game when someone leaves
-
 export const onChooseRoom = (event) => {
   event.preventDefault();
   if (!event.target.id) {
@@ -28,7 +26,7 @@ export const onChooseRoom = (event) => {
     return;
   }
 
-  // r is game board
+  // r is room
   socket.emit("join room", currentRoom, (r, index) => {
     setPlayerIndex(index);
     console.log(`Player ${playerIndex} has connected`);
@@ -48,12 +46,6 @@ export const onChooseRoom = (event) => {
       .getElementsByTagName("app-root")[0]
       .shadowRoot.querySelector("app-router");
     router.render(`/room/${currentRoom}`, gameBoard);
-
-    //document.getElementsByTagName("app-root")[0].renderGameRoom(gameBoard);
-
-    if (playerIndex === -1) {
-      //He should only watch, but not play
-    }
   });
 };
 
@@ -63,12 +55,8 @@ export const onLeaveRoom = (event) => {
     socket.emit("user left", gameBoard.name, playerIndex);
   }
 
-
   socket.emit("leave room", () => {
     console.log(`Player ${playerIndex} has disconnected onLeaveRoom`);
-    // gameBoard = undefined;
-    // playerIndex = -1;
-    // setPlayerIndex(-1);
 
     const router = document
       .getElementsByTagName("app-root")[0]
@@ -79,8 +67,6 @@ export const onLeaveRoom = (event) => {
 };
 
 export const onLeavePage = (event) => {
-  console.log(gameBoard.isReplay);
-
   if (!gameBoard.isReplay) {
     socket.emit("user left", gameBoard.name, playerIndex);
   }
@@ -103,26 +89,11 @@ socket.on("user left", (room, playerLeftId) => {
 
   console.log("playerLeftId: ", playerLeftId);
   gameBoard.userLeft(playerLeftId);
-
-  // gameBoard = new GameBoard(
-  //   gameBoard.name,
-  //   gameBoard.size - 1,
-  //   gameBoard.players,
-  //   playerIndex
-  // );
-
-  // console.log(gameBoard.players);
-
-  // console.log("You win");
 });
 
 //selecting lines
 socket.on("selectLine", (className, id, initializer) => {
   gameBoard.updateLineState(id);
-
-  console.log(
-    `Start: ${initializer}; Element to update: ${className} , ${gameBoard}`
-  );
 
   const { result1, result2 } = seclectedLineUpdateBox(className, initializer);
   if (playerIndex === -1) {
