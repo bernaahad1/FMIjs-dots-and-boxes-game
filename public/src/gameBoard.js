@@ -439,6 +439,8 @@ export class GameBoard extends HTMLElement {
     disableDiv.className = "overlay-disable";
     this.#_shadowRoot.querySelector(".packman").setAttribute("disabled", true);
 
+    this.usedPackman = true;
+
     const rect = this.#_shadowRoot
       .querySelector(`${lines[0]}`)
       .getBoundingClientRect();
