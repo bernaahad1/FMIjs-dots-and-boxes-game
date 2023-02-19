@@ -318,24 +318,36 @@ export class GameBoard extends HTMLElement {
 
     const opponentIndex = parseInt(this.playerIndex) === 0 ? 1 : 0;
 
-    const description =
-      this.playerScores[opponentIndex] < this.playerScores[this.playerIndex]
-        ? "You are the winner!"
-        : this.playerScores[opponentIndex] ===
-          this.playerScores[this.playerIndex]
-        ? "Both are the winners"
-        : "You lost!";
+    let description = "";
+    if (parseInt(this.playerIndex) >= 0) {
+      description =
+        this.playerScores[opponentIndex] <
+        this.playerScores[parseInt(this.playerIndex)]
+          ? "You are the winner!"
+          : this.playerScores[opponentIndex] ===
+            this.playerScores[parseInt(this.playerIndex)]
+          ? "Both are the winners"
+          : "You lost!";
+    } else {
+      description =
+        this.playerScores[0] < this.playerScores[1]
+          ? `Player 2 is winner`
+          : this.playerScores[0] === this.playerScores[1]
+          ? "Both are the winners"
+          : `Player 1 is winner`;
+    }
 
     this.winnerId =
-      this.playerScores[opponentIndex] < this.playerScores[this.playerIndex]
+      this.playerScores[opponentIndex] <
+      this.playerScores[parseInt(this.playerIndex)]
         ? this.playerIndex
         : this.playerScores[opponentIndex] ===
-          this.playerScores[this.playerIndex]
+          this.playerScores[parseInt(this.playerIndex)]
         ? 2
         : opponentIndex;
 
     const modal = document.createElement("modal-component");
-    if (this.isReplay || this.usedPackman) {
+    if (this.isReplay || this.usedPackman || parseInt(this.playerIndex) < 0) {
       modal.callback = () => onLeaveRoom();
     } else {
       modal.callback = () => onReplayAfterEnd(this.name, this.playerIndex);
