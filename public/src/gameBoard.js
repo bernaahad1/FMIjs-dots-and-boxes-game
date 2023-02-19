@@ -332,7 +332,7 @@ export class GameBoard extends HTMLElement {
         : opponentIndex;
 
     const modal = document.createElement("modal-component");
-    if (this.isReplay) {
+    if (this.isReplay || this.usedPackman) {
       modal.callback = () => onLeaveRoom();
     } else {
       modal.callback = () => onReplayAfterEnd(this.name, this.playerIndex);

@@ -33,20 +33,20 @@ body,html{
     width:40px;
     height:40px;
     left:10%;
-    animation-duration:8s;
+    animation-duration:10s;
   }
   .bubble:nth-child(2){
     width:20px;
     height:20px;
     left:20%;
-    animation-duration:5s;
+    animation-duration:12s;
     animation-delay:1s;
   }
   .bubble:nth-child(3){
     width:50px;
     height:50px;
     left:35%;
-    animation-duration:7s;
+    animation-duration:16s;
     animation-delay:2s;
   }
   .bubble:nth-child(4){
@@ -60,14 +60,15 @@ body,html{
     width:35px;
     height:35px;
     left:55%;
-    animation-duration:6s;
+    animation-duration:15s;
     animation-delay:1s;
+    background-color: rgb(234, 91, 120);
   }
   .bubble:nth-child(6){
     width:45px;
     height:45px;
     left:65%;
-    animation-duration:8s;
+    animation-duration:11s;
     animation-delay:3s;
   }
   .bubble:nth-child(7){
@@ -81,14 +82,14 @@ body,html{
     width:25px;
     height:25px;
     left:80%;
-    animation-duration:6s;
+    animation-duration:10s;
     animation-delay:2s;
   }
   .bubble:nth-child(9){
     width:15px;
     height:15px;
     left:70%;
-    animation-duration:5s;
+    animation-duration:8s;
     animation-delay:1s;
     background-color: rgb(234, 91, 120);
   }
