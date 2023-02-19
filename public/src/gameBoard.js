@@ -251,8 +251,6 @@ export class GameBoard extends HTMLElement {
     );
 
     socket.emit("fetchCurrentRoomState", this.name, (r) => {
-      //console.log(r)
-
       gameBoard = new GameBoard(
         r.name,
         r.size,
@@ -262,7 +260,6 @@ export class GameBoard extends HTMLElement {
         "",
         []
       );
-      //console.log(gameBoard);
 
       const router = document
         .getElementsByTagName("app-root")[0]
@@ -295,7 +292,11 @@ export class GameBoard extends HTMLElement {
     const myEl = this.#_shadowRoot.querySelector(`.player-${index}`);
     myEl.innerHTML = this.playerScores[index];
 
-    if (this.playerScores[0] + this.playerScores[1] === this.size - 1 && !this.usedPackman) {
+    if (
+      this.playerScores[0] + this.playerScores[1] === this.size - 1 &&
+      !this.usedPackman &&
+      this.plTurn != -2
+    ) {
       this.#_shadowRoot.querySelector("#packman-section").style.display =
         "flex";
     }
@@ -351,7 +352,7 @@ export class GameBoard extends HTMLElement {
   userLeft(playerLeftId) {
     console.log(this.playerIndex);
 
-    if(this.#_shadowRoot.querySelector("modal-component") != null){
+    if (this.#_shadowRoot.querySelector("modal-component") != null) {
       return;
     }
 
@@ -417,14 +418,16 @@ export class GameBoard extends HTMLElement {
   onChangePlayTurn(myTurn) {
     const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
 
-    if (myTurn && this.playerIndex !== -1) {
+    if (myTurn && this.playerIndex != -1) {
       this.#_shadowRoot.querySelector(".game-state-turn").innerHTML =
         "Your turn";
       disableDiv.className = "overlay-disable hidden";
-    } else if (this.playerIndex !== -1) {
+      this.plTurn = this.playerIndex;
+    } else if (this.playerIndex != -1) {
       this.#_shadowRoot.querySelector(".game-state-turn").innerHTML =
         "Waiting for opponent to play";
       disableDiv.className = "overlay-disable";
+      this.plTurn = this.playerIndex == 0 ? 1 : 0;
     }
   }
 
@@ -437,9 +440,6 @@ export class GameBoard extends HTMLElement {
       let linesCurrent = [];
       let boxesCurrent = [];
       for (let j = 0; j < this.size - 1; j++) {
-        // if (this.#_shadowRoot.querySelector(`#line${i-1}${j}-${i}${j}`).style.opacity == 100){
-        //   numCurrent++;
-        // }
         boxesCurrent.push(`${i}${j}`);
 
         linesCurrent.push(`#line${i - 1}${j}-${i}${j}`);
@@ -456,11 +456,15 @@ export class GameBoard extends HTMLElement {
       }
     }
 
-    // this.startPackman(lines, boxes);
     socket.emit("start-packman", lines, boxes);
   }
 
   startPackman(lines, boxes) {
+    // disable playing when packman starts alsa disable the packman button
+    const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
+    disableDiv.className = "overlay-disable";
+    this.#_shadowRoot.querySelector(".packman").setAttribute("disabled", true);
+
     const rect = this.#_shadowRoot
       .querySelector(`${lines[0]}`)
       .getBoundingClientRect();
@@ -483,6 +487,12 @@ export class GameBoard extends HTMLElement {
     let currentImage = 0;
     const intervalId = setInterval(() => {
       if (imageRect.x > windowWidth) {
+        // enable the game
+        if (parseInt(this.playerIndex) == this.plTurn) {
+          disableDiv.className = "overlay-disable hidden";
+        }
+        this.#_shadowRoot.querySelector(".packman").removeAttribute("disabled");
+
         clearInterval(intervalId);
       }
       left += 10;
@@ -503,7 +513,6 @@ export class GameBoard extends HTMLElement {
   };
 
   checkPackmanOverLine(x, lines, boxes) {
-    //console.log(x);
     for (let i = 0; i < lines.length; i++) {
       if (
         x >
@@ -521,24 +530,24 @@ export class GameBoard extends HTMLElement {
     }
     const twoBoxes = idRow.match(/-?[0-9]{2}/g);
     twoBoxes[1] = twoBoxes[1].match(/[0-9]{2}/g)[0];
-    console.log(twoBoxes)
+    console.log(twoBoxes);
 
-    twoBoxes.forEach( b => {
+    twoBoxes.forEach((b) => {
       if (this.boxes.get(b) === undefined) {
-      this.boxes.set(b, { score: NaN, owner: -1 });
-    } else if (this.boxes.get(b).score >= 4) {
-      console.log("remove owner score", parseInt(this.boxes.get(b).owner));
-      this.onScoreUpdate(parseInt(this.boxes.get(b).owner), -1);
-    
-    this.#_shadowRoot.querySelector(`#box-${b}`).style.backgroundColor =
-      null;
-    }
-    this.boxes.get(b).score--;
-    this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = "30%";
-    this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute("disabled");
+        this.boxes.set(b, { score: NaN, owner: -1 });
+      } else if (this.boxes.get(b).score >= 4) {
+        console.log("remove owner score", parseInt(this.boxes.get(b).owner));
+        this.onScoreUpdate(parseInt(this.boxes.get(b).owner), -1);
 
-    socket.emit("save boxes", this.name, Array.from(this.boxes));
-  })
+        this.#_shadowRoot.querySelector(`#box-${b}`).style.backgroundColor =
+          null;
+      }
+      this.boxes.get(b).score--;
+      this.#_shadowRoot.querySelector(`${idRow}`).style.opacity = "30%";
+      this.#_shadowRoot.querySelector(`${idRow}`).removeAttribute("disabled");
+
+      socket.emit("save boxes", this.name, Array.from(this.boxes));
+    });
   }
 }
 

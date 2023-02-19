@@ -133,7 +133,7 @@ socket.on("selectLine", (className, id, initializer) => {
     return;
   }
 
-  if (initializer === playerIndex) {
+  if (initializer == playerIndex) {
     if (!result1 && !result2) {
       socket.emit("set turn", playerIndex == 0 ? 1 : 0);
       gameBoard.onChangePlayTurn(false);
