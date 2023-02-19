@@ -105,12 +105,8 @@ io.on("connection", (socket) => {
 
   socket.on("leave room", (cb) => {
     //you can leave the room
-    //console.log("leave room", playerIndex, currentRoom);
-    //console.log("äloooo");
     clearPlayerGame();
-
     cb();
-    // socket.leave(roomName);
   });
 
   socket.on("create room", (roomName, gridSize, playerNum) => {
@@ -173,14 +169,11 @@ io.on("connection", (socket) => {
 
   socket.on("user left", (roomName, playerLeftId) => {
     console.log("user left server", roomName, playerLeftId);
-    //rooms.get(roomName).gameWinnerId = playerLeftId === 0 ? 1 : 0;
-
     io.to(roomName).emit("user left", roomName, playerLeftId);
   });
 
   socket.on("winner", (roomName, winnerId) => {
     console.log("Winner is", roomName, winnerId);
-
     rooms.get(currentRoom).gameWinnerId = winnerId;
   });
 

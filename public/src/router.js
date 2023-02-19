@@ -29,7 +29,8 @@ export class Router extends HTMLElement {
       break;
     }
 
-    // Dont now why but not needed
+
+    //remove player if go to home
     if (this.#currentPath !== null && this.#currentPath.match(/^\/room\/|^\/roomReplay\//) &&
         (this.#currentPath.match(/^\/room\//) && !path.match(/^\/roomReplay\//))) {
       onLeavePage();

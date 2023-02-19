@@ -25,7 +25,6 @@ function createHomeTemplate() {
             <div id="home-all-rooms" class="home-column">
             </div>
           </div>
-          
         </div>
     `;
 
@@ -43,9 +42,6 @@ export class Home extends HTMLElement {
 
   constructor() {
     super();
-
-    // TODO for later maybe create new component that is home-all-rooms
-    // save the instance of it in Home and use its methods for create room, reset room, and etc
 
     this.#_shadowRoot = this.attachShadow({ mode: "closed" });
     this.#_shadowRoot.appendChild(template.content.cloneNode(true));
@@ -80,7 +76,7 @@ export class Home extends HTMLElement {
   onCreateRoom = (e, roomName = "defauty", numPlayers = 2, gridSize = 2) => {
     console.log(`Create ${this.newRoomName} with size ${this.newRoomSize}`);
     if (this.newRoomName === "") {
-      if(this.#_shadowRoot.querySelector("modal-component") != null){
+      if (this.#_shadowRoot.querySelector("modal-component") != null) {
         return;
       }
       const modal = document.createElement("modal-component");
@@ -94,7 +90,7 @@ export class Home extends HTMLElement {
       this.newRoomSize > 10 ||
       Number(this.newRoomSize) === NaN
     ) {
-      if(this.#_shadowRoot.querySelector("modal-component") != null){
+      if (this.#_shadowRoot.querySelector("modal-component") != null) {
         return;
       }
       const modal = document.createElement("modal-component");
@@ -104,7 +100,7 @@ export class Home extends HTMLElement {
       return;
     }
     if (rooms.has(this.newRoomName)) {
-      if(this.#_shadowRoot.querySelector("modal-component") != null){
+      if (this.#_shadowRoot.querySelector("modal-component") != null) {
         return;
       }
       const modal = document.createElement("modal-component");
@@ -177,7 +173,7 @@ export class Home extends HTMLElement {
         r.name,
         r.players.length,
         connected,
-        connected === r.players.length ? "ready" : "waiting"
+        connected === r.players.length ? "ready" : "pending"
       );
     });
 

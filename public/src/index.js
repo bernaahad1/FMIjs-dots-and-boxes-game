@@ -4,7 +4,6 @@ import { Router } from "./router.js";
 function createMainTemplate() {
   const templateString = `
         <main class="main-content">
-          <!--<home-page></home-page>-->
         </main>
     `;
 
@@ -22,7 +21,6 @@ export class AppComponent extends HTMLElement {
     super();
     this.#_shadowRoot = this.attachShadow({ mode: "open" });
     this.#_shadowRoot.appendChild(template.content.cloneNode(true));
-    // this.#_shadowRoot.appendChild(home);
     const router = new Router();
     this.#_shadowRoot.appendChild(router);
   }
@@ -30,11 +28,6 @@ export class AppComponent extends HTMLElement {
   renderGameRoom(gameRoom) {
     this.#_shadowRoot.querySelector("home-page").setAttribute("hidden", true);
     this.#_shadowRoot.querySelector("main").appendChild(gameRoom);
-  }
-
-  resetToHome() {
-    this.#_shadowRoot.innerHTML = "";
-    this.#_shadowRoot.appendChild(template.content.cloneNode(true));
   }
 }
 

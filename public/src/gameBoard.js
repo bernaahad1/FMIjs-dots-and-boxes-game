@@ -1,16 +1,11 @@
-import { Router } from "./router";
-
+import "./router";
 import { socket } from "./client_db.js";
 import { onLeaveRoom } from "./gameBoardActions.js";
 import { style } from "./styles.js";
 import { bubble } from "./bubbles";
-import { ModalComponent } from "./modalComponent.js";
-import { AlertComponent } from "./alert.js";
-import {
-  onReplayGame,
-  onReplayAfterEnd,
-  clickNextLine,
-} from "./gameBoardReplay";
+import "./modalComponent.js";
+import "./alert.js";
+import { onReplayAfterEnd, clickNextLine } from "./gameBoardReplay";
 
 import img from "./assets/logo_FMIJS.png";
 import openMouth from "./assets/packman-mouth-open.png";
@@ -86,6 +81,7 @@ export class GameBoard extends HTMLElement {
     }
   }
 
+  // for later join
   updateSavedBoxColors() {
     const colors = { 0: "pink", 1: "lightgray" };
 
@@ -126,10 +122,6 @@ export class GameBoard extends HTMLElement {
     if (this.savedBoxes !== "") {
       this.updateSavedBoxColors();
     }
-  }
-
-  createScoreTable() {
-    return ``;
   }
 
   createBoard() {
@@ -216,8 +208,6 @@ export class GameBoard extends HTMLElement {
       disableDiv.className += " hidden";
     }
     gameRoom.appendChild(disableDiv);
-
-    // TODO load scored boxes
   }
 
   updateBoxState(id, color, playerIndex) {
@@ -225,16 +215,11 @@ export class GameBoard extends HTMLElement {
       this.boxes.set(id, { score: NaN, owner: -1 });
     } else this.boxes.get(id).score++;
 
-    //if(this.plTurn !== -2) {//-2 means replay
     socket.emit("save boxes", this.name, Array.from(this.boxes));
-    //}
 
     if (this.boxes.get(id).score >= 4) {
       this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor =
         color;
-      console.log(
-        this.#_shadowRoot.querySelector(`#box-${id}`).style.backgroundColor
-      );
       this.boxes.get(id).owner = playerIndex;
       this.onScoreUpdate(playerIndex);
       this.checkWinner();
@@ -270,18 +255,17 @@ export class GameBoard extends HTMLElement {
 
   updateLineState(id) {
     const line = this.#_shadowRoot.querySelector(`#${id}`);
-
     line.style.opacity = 100;
     line.disabled = true;
   }
 
+  // for coloring the lines
   updateLineColor(id, color) {
     const line = this.#_shadowRoot.querySelector(`#${id}`);
     line.style.backgroundColor = color;
   }
 
   onLineClick(event) {
-    console.log(event);
     socket.emit(
       "selectLine",
       event.target.className,
@@ -355,15 +339,14 @@ export class GameBoard extends HTMLElement {
 
     modal.setAttribute("path", `/roomReplay/${this.name}`);
     modal.innerHTML = `<alert-component title="End Game!" description="${description}" path="/roomReplay/${this.name}"/>`;
-    setTimeout(() => {
-      this.#_shadowRoot.appendChild(modal);
-    }, 1000);
 
     // disable playing when game ends
     const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
     disableDiv.className = "overlay-disable";
 
-    // socket.emit("winner", this.winnerId);
+    setTimeout(() => {
+      this.#_shadowRoot.appendChild(modal);
+    }, 1000);
   }
 
   userLeft(playerLeftId) {
@@ -405,33 +388,6 @@ export class GameBoard extends HTMLElement {
     disableDiv.className = "overlay-disable";
   }
 
-  showWinner(winnerId) {
-    let title = "";
-    let description = "";
-
-    if (this.playerIndex === winnerId) {
-      title = "Congratulations!";
-      description = "You are the winner!";
-    } else if (this.playerIndex !== -1) {
-      title = "Game Over!";
-      description = "You can be winner next time!";
-    } else {
-      title = "Game Over!";
-      description = `Player ${winnerId} is the winner`;
-    }
-
-    const modal = document.createElement("modal-component");
-
-    modal.callback = () => onReplayAfterEnd(this.name, this.playerIndex);
-
-    modal.innerHTML = `<alert-component title="${title}" description="${description}" path="/roomReplay/${this.name}" />`;
-    this.#_shadowRoot.appendChild(modal);
-
-    // disable playing the game when someone lefts
-    const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
-    disableDiv.className = "overlay-disable";
-  }
-
   onChangePlayTurn(myTurn) {
     const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");
 
@@ -448,6 +404,7 @@ export class GameBoard extends HTMLElement {
     }
   }
 
+  // used before starting the packman to detect the line
   chooseMaxRow() {
     let numChosed = 0;
     let lines = [];
