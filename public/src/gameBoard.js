@@ -87,7 +87,7 @@ export class GameBoard extends HTMLElement {
   }
 
   updateSavedBoxColors() {
-    const colors = { 0: "pink", 1: "gray" };
+    const colors = { 0: "pink", 1: "lightgray" };
 
     this.savedBoxes.forEach((box) => {
       if (box[1].score >= 4) {
@@ -225,8 +225,6 @@ export class GameBoard extends HTMLElement {
       this.boxes.set(id, { score: NaN, owner: -1 });
     } else this.boxes.get(id).score++;
 
-    console.log(this.boxes);
-
     //if(this.plTurn !== -2) {//-2 means replay
     socket.emit("save boxes", this.name, Array.from(this.boxes));
     //}
@@ -275,6 +273,11 @@ export class GameBoard extends HTMLElement {
 
     line.style.opacity = 100;
     line.disabled = true;
+  }
+
+  updateLineColor(id, color) {
+    const line = this.#_shadowRoot.querySelector(`#${id}`);
+    line.style.backgroundColor = color;
   }
 
   onLineClick(event) {
@@ -340,7 +343,9 @@ export class GameBoard extends HTMLElement {
 
     modal.setAttribute("path", `/roomReplay/${this.name}`);
     modal.innerHTML = `<alert-component title="End Game!" description="${description}" path="/roomReplay/${this.name}"/>`;
-    this.#_shadowRoot.appendChild(modal);
+    setTimeout(() => {
+      this.#_shadowRoot.appendChild(modal);
+    }, 1000);
 
     // disable playing when game ends
     const disableDiv = this.#_shadowRoot.querySelector(".overlay-disable");

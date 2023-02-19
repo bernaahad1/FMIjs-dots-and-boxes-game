@@ -28,8 +28,8 @@ export const onChooseRoom = (event) => {
     return;
   }
 
+  // r is game board
   socket.emit("join room", currentRoom, (r, index) => {
-    console.log(r);
     setPlayerIndex(index);
     console.log(`Player ${playerIndex} has connected`);
 
@@ -63,7 +63,6 @@ export const onLeaveRoom = (event) => {
     socket.emit("user left", gameBoard.name, playerIndex);
   }
 
-  // console.log("emit leave");
 
   socket.emit("leave room", () => {
     console.log(`Player ${playerIndex} has disconnected onLeaveRoom`);
@@ -76,7 +75,6 @@ export const onLeaveRoom = (event) => {
       .shadowRoot.querySelector("app-router");
 
     router.render(`/`);
-    //document.getElementsByTagName("app-root")[0].resetToHome();
   });
 };
 
@@ -95,7 +93,6 @@ export const onLeavePage = (event) => {
 };
 
 socket.on("user left", (room, playerLeftId) => {
-  console.log("alooo, ", room, playerLeftId);
   if (
     room !== gameBoard.name ||
     playerLeftId < 0 ||
@@ -154,7 +151,7 @@ export const seclectedLineUpdateBox = (
   const pattern = /^\w+$/;
 
   const classList = className.split(" ").filter((str) => pattern.test(str));
-  const colors = { 0: "pink", 1: "gray" };
+  const colors = { 0: "pink", 1: "lightgray" };
 
   console.log(
     `clicked line from ${initializer} and current player ${playerIndex}`

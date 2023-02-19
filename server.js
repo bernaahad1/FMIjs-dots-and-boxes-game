@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
 
   socket.on("join room", (roomName, cb) => {
     clearPlayerGame();
-    if(rooms.get(roomName).gameWinnerId > -1){
+    if (rooms.get(roomName).gameWinnerId > -1) {
       return;
     }
     socket.join(roomName);
@@ -184,7 +184,7 @@ io.on("connection", (socket) => {
     rooms.get(currentRoom).gameWinnerId = winnerId;
   });
 
-  socket.on('start-packman', (lines, boxes) =>{
+  socket.on("start-packman", (lines, boxes) => {
     io.to(currentRoom).emit("start-packman", lines, boxes);
-  })
+  });
 });

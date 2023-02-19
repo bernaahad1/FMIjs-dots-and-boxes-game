@@ -17,8 +17,6 @@ export const onReplayGame = (event) => {
   console.log(`${currentRoom} is being replayed from player ${playerIndex}`);
 
   socket.emit("fetchCurrentRoomState", currentRoom, (r) => {
-    //console.log(r)
-
     gameBoard = new GameBoard(
       r.name,
       r.size,
@@ -29,7 +27,6 @@ export const onReplayGame = (event) => {
       [],
       true
     );
-    //console.log(gameBoard);
 
     const router = document
       .getElementsByTagName("app-root")[0]
@@ -44,8 +41,6 @@ export const onReplayAfterEnd = (currentRoom, playerIndex) => {
   console.log(`${currentRoom} is being replayed from player ${playerIndex}`);
 
   socket.emit("fetchCurrentRoomState", currentRoom, (r) => {
-    //console.log(r)
-
     gameBoard = new GameBoard(
       r.name,
       r.size,
@@ -56,7 +51,6 @@ export const onReplayAfterEnd = (currentRoom, playerIndex) => {
       [],
       true
     );
-    //console.log(gameBoard);
 
     const router = document
       .getElementsByTagName("app-root")[0]
@@ -75,6 +69,10 @@ export const clickNextLine = async (r, len) => {
     const cName = r.linesClassName[i];
 
     gameBoard.updateLineState(line);
+    gameBoard.updateLineColor(
+      line,
+      from == gameBoard.playerIndex ? "pink" : "lightgray"
+    );
     seclectedLineUpdateBox(cName, from, gameBoard);
     i++;
     if (i === len) {
